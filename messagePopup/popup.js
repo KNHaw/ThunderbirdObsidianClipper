@@ -9,11 +9,6 @@ function onError(error) {
   console.log("popup.js: " + error);
 }
 
-
-// NOTE: This code is dependent on the storage.js functions. Be sure to load them in the invoking .html page:
-//    <script src="../storage.js"></script>
-// (And, yes, there are better ways to do this. If it bugs you, let me know and I'll fix it later)
-
 // Function to change characters that are illegal in Obsidian file names to something palatable
 function correctObsidianFilename(noteFileName, useAnsiChars=true)
 {
