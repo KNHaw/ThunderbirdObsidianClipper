@@ -17,6 +17,6 @@ ObsidianClipper is an AddOn for the Thunderbird email client that lets a user cl
 To use ObsidianClipper, just select an email and look for the "Obsidian" icon on the header (where you will also find the Reply and Forward buttons). Press the "Obsidian" button and your Obsidian applicaiton will launch and load your vault and your email will be clipped into Obsidian!
 
 ## Questions?
-ObsidianClipper is still a work in progress. If you have any questions or want to give me feedback, please reach out to me on the contact links above or via the contact page on my website, [KevinHaw.com](http://www.keivnhaw.com).
+ObsidianClipper is still a work in progress. If you have any questions or want to give me feedback, please reach out to me on the contact links above or via the contact page on my website, [KevinHaw.com](http://www.kevinhaw.com).
 
 I hope this AddOn proves useful to you.
