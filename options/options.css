@@ -1,0 +1,34 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 6fr;
+}
+
+.header {
+    font-weight: bold
+}
+
+.grid-container div {
+    margin: 1ex;
+}
+
+
+input[type=text] {
+  width: 100%;
+  padding: 5px 5px;
+  margin: 5px 0px;
+  box-sizing: border-box;
+}
+
+textarea {
+  width: 100%;
+  padding: 5px 5px;
+  margin: 5px 0px;
+  box-sizing: border-box;
+  height:200px;
+}
+
+
+
+input[type=text]:focus {
+  border: 2px solid #555;
+}

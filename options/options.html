@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" media="screen" href="options.css">
+</head>
+
+<body>
+
+  <hr>
+  <h1>Obsidian Vault Name</H1>
+  The vault is a folder on your local file system where Obsidian stores your notes. 
+  The vault name is chosen by the user when they first create it.
+  You will need to know the name of the vault where you want to store emails
+  that you clip. If you use more than one vault, make sure you enter the name of
+  the vault you want to use for clipping emails.
+  <p>If you are unsure of your vault name or have not set up a vault on your local machine yet,
+  go to the <a href="https://help.obsidian.md">Obsidian Help</a> page for details.
+  
+  <form>
+    <label><b>Store clipped emails in this Obsidian vault</b></label>
+    <input type="text" id="obsidianVaultName">
+    <button id="submit-obsidianVaultName">Save</button>
+    <button id="default-obsidianVaultName">Restore Default</button>
+  </form>
+  
+  <hr>
+  <h1>Note Folder Path (Optional Parameter)</h1>
+  This optional parameter allows the user to specifiy a location within the
+  vault to place clipped emails. The folders names are separated by slashes, so
+  setting this parameter to 'business/important emails" would place
+  your clipped eamils into the 'important emails' folder inside the vault's
+  top level 'business' folder.
+  <p>If this parameter is left blank, new notes in Obsidian will appear
+  in the location indicated in 'Settings->Files & Links->Default location for new notes'.
+  By default, this is usually the most recent folder in use in the Obsidian app.
+  
+  <form>
+    <label><b>Store clipped emails in this folder in the Obsidian vault (optional)</b></label>
+    <input type="text" id="noteFolderPath">
+    <button id="submit-noteFolderPath">Save</button>
+    <button id="default-noteFolderPath">Restore Default</button>
+  </form>
+
+
+
+
+
+
+
+  <p>The note will appear in the location specified i in Settings->Files & Links->Default location for new notes 
+
+
+  <hr>
+  <h1>Note Filename and Content Template</H1>
+  Indicate how a clipped email note's filename should appear and how the actual 
+  note content should be formatted. Create a template using the following placeholders 
+  for message and time information:
+  <ul> 
+  <li>Note Information:
+        <ul>
+        <li><b>_NOTEDATE</b> - The current date.</li>
+        <li><b>_NOTETIME</b> - The current time.</li>
+        </ul>
+  </li>
+  <li>Message Information: \
+        <ul>
+        <li><b>_MSGDATE</b> - The message date.</li>
+        <li><b>_MSGTIME</b> - The message time.</li>
+        <li><b>_MSGSUBJECT</b> - The message subject.</li>
+        <li><b>_MSGRECIPENTS</b> - List of all message recipients.</li>
+        <li><b>_MSGAUTHOR</b> - The message author.</li>
+        <li><b>_MSGCONTENT</b> - The actual text content of the message.</li>
+        </ul>
+  </li>
+  </ul>
+  For example, if you use the filename template of 'Email (_MSGDATE) : _MSGSUBJECT', your clipped notes will
+  have titles of the form 'Email (02⧸30⧸2023) ꞉ Single WOmbats in your area whant to Chat!'.
+  <p>Be sure to include the leading underscore ("_") when using any of the above placeholders in your template.
+  <p>
+  <form>
+    <label><b>Use the filename template below</b></label>
+    <input type="text" id="noteFilenameTemplate">
+    <button id="submit-noteFilenameTemplate">Save</button>
+    <button id="default-noteFilenameTemplate">Restore Default</button>
+  </form>
+  
+  <hr>
+  
+  <p>
+  <form>
+    <label><b>Use the Note Content Template Below</b></label>
+    
+  <textarea id="noteContentTemplate">
+  </textarea>
+    <button id="submit-noteContentTemplate">Save</button>
+    <button id="default-noteContentTemplate">Restore Default</button>
+  </form>
+  
+  
+  <hr>
+  <h1>Use Unicode Characters In Filenames</H1>
+  Obsidian does not support a number of characters in note filenames
+  because they might cause problems with the underlying operating
+  system's file system ('|', '/', '\', '"', '<', '>', '*', ':', '?').
+  <p>To get around this, a number of similar looking charatcers from the Unicode 
+  character set are substituted by ObsidianClipper by default. If you are experiencing
+  problems with filenames when you clip an email, you may consider disabling
+  this setting to instead have dashes ('-') replace the illegal characters.
+  
+  <form>
+    <label><b>Enable Unicode to substitute ilegal characters</b></label>
+    <input type="checkbox" id="unicodeCharSub">
+    <button id="submit-unicodeCharSub">Save</button>
+    <button id="default-unicodeCharSub">Restore Default</button>
+  </form>
+  
+  <script src="options.js"></script>
+</body>
+
+</html>
