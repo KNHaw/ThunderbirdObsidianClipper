@@ -18,7 +18,7 @@ function onError(error) {
 // remember to assign listeners to any new field (below)
 var defaultParameters = [];
 defaultParameters["obsidianVaultName"] = "_myNotes";
-defaultParameters["noteFolderPath"] = "";
+defaultParameters["noteFolderPath"] = "ClippedEmails";
 defaultParameters["unicodeCharSub"] = true;
 defaultParameters["noteFilenameTemplate"] = "Email (_MSGDATE) : _MSGSUBJECT";
 defaultParameters["noteContentTemplate"] = 
