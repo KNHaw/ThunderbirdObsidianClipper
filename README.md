@@ -12,7 +12,11 @@ ObsidianClipper is an Add-On for the Thunderbird email client that lets a user c
   vault to place clipped emails By default, this will be the folder "ClippedEmails.". If this parameter is left blank, new notes in Obsidian will appear
   in the location indicated in 'Settings->Files & Links->Default location for new notes'.
   - *Note Filename and Content Templates* - allow you to specify how your clipped emails will be formatted and how the files will be named.
-- After that, you're ready to clip emails!
+
+![Here is what the *Options* tab looks like](docs/OptionsTab.png)
+
+
+- After youv've instralled and configured the Add-On, you're ready to clip emails!
 
 ## Usage
 To use ObsidianClipper, just select an email and look for the "Obsidian" icon on the header (where you will also find the Reply and Forward buttons). Press the "Obsidian" button and your Obsidian application will launch and load your vault and your email will be clipped into Obsidian. 
