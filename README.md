@@ -1,5 +1,5 @@
 # ThunderbirdObsidianClipper
-ObsidianClipper is an Add-On for the Thunderbird email client that lets a user clip messages to the Obsidian notetaking application. Both applications are open source and free to use, just like this Ad-dOn!
+ObsidianClipper is an Add-On for the Thunderbird email client that lets a user clip messages to the Obsidian notetaking application. Both applications are open source and free to use, just like this Add-On!
 
 ## Installation
 - You will first need to have the Obsidian notetaking app on your local platform as well as the Thunderbird email client.
@@ -33,7 +33,7 @@ Once your email has been clipped, it will look like the screenshot below. By def
 
 
 ## Bugs
-If ObsidianClipper is not properly working, please take a moment to reread the instructions and reinstall the Add-On. If it is still happening, take screenshots of the problem and send them to me via the *Feedback* instructions below.
+If ObsidianClipper is not properly working, please take a moment to reread the instructions and reinstall the Add-On. If the problem is still happening, take screenshots of the problem and send them to me via the *Feedback* instructions below.
 
 ## Limitations & Future Features
 At this time, ObsidianClipper will only clip the text portion of an email and not HTML content (i.e. embedded images, bold or italics, etc). It will also not save attachments. If you're a user who is interested in these or other features, please let me know via the *Feedback* instructions below. Otherwise I will assume there is no demand for them.
