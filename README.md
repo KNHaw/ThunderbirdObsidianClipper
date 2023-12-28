@@ -5,7 +5,9 @@ ObsidianClipper is an Add-On for the Thunderbird email client that lets a user c
 - You will first need to have the Obsidian notetaking app on your local platform as well as the Thunderbird email client.
   - You can download Thunderbird for free [here](https://www.thunderbird.net/en-US/download/).
   - You can download Obsidian for free [here](https://obsidian.md/download).
-  - You can install the *Obsidian Clipper* Add-On into Thunderbird by searching for "ObsdianClipper" in the Add On manager (*Settings->Add-Ons Manager*) or by downloading a file from the [Thuderbird Add-On Site](https://addons.thunderbird.net/en-US/thunderbird/addon/obsidianclipper/) and installing it.
+  - You can install the *Obsidian Clipper* Add-On into Thunderbird in two ways:
+    - By searching for "ObsdianClipper" in the Add-On manager (*Settings->Add-Ons Manager*).
+    - Or by downloading a file from the [Thuderbird Add-On Site](https://addons.thunderbird.net/en-US/thunderbird/addon/obsidianclipper/), clicking the "Download Now" button to get an XPI file, and installing that file from the Add-On manager (*Add-On Manager->Settings->Install Add-On from file*).
 - After installing ObsidianClipper to your Thunderbird client, select the Options tab (*Settings->Add-Ons Manager->Obsidian Clipper->Options tab*) and configure the Add-On to work with Obsidian on your machine.
   - *Obsidian Vault Name* - is the name of the vault you created to keep your notes in when you set up Obsidian.
   - *Note Folder Path* - an optional parameter that allows the user to specifiy a location within the
@@ -37,6 +39,6 @@ If ObsidianClipper is not properly working, please take a moment to reread the i
 At this time, ObsidianClipper will only clip the test portion of an email and not HTML content (e.g. embedded images, bold or italics, etc) or attachments. If you're a user who is interested in these or other features, please let me know via the *Feedback* instructions below.
 
 ## Questions? Feedback?
-ObsidianClipper is still a work in progress. If you have any questions or want to give me feedback, please reach out to me on the contact links above or via the contact page on my website, [KevinHaw.com](http://www.kevinhaw.com).
+ObsidianClipper is still a work in progress. If you have any questions or want to give me feedback, please reach out to me on the contact links above or via the contact page on my personal website, [KevinHaw.com](http://www.kevinhaw.com).
 
 I hope this Add-On proves useful to you.
