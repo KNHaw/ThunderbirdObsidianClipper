@@ -18,7 +18,7 @@ ObsidianClipper is an Add-On for the Thunderbird email client that lets a user c
 ![Here is what the *Options* tab looks like](docs/OptionsTab.png)
 
 
-- After youv've installed and configured the Add-On, you're ready to clip emails!
+- After you've installed and configured the Add-On, you're ready to clip emails!
 
 ## Usage
 To use ObsidianClipper, just select an email and look for the "Obsidian" icon on the header (where you will also find the Reply and Forward buttons). Press the "Obsidian" button and your Obsidian application will launch and load your vault and your email will be clipped into Obsidian. 
@@ -33,10 +33,10 @@ Once your email has been clipped, it will look like the screenshot below. By def
 
 
 ## Bugs
-If ObsidianClipper is not properly working, please take a moment to reread the instrucitons and reinstall the Add-On. If it is still happening, take screenshots of the problem and send them to me via the *Feedback* instructions below.
+If ObsidianClipper is not properly working, please take a moment to reread the instructions and reinstall the Add-On. If it is still happening, take screenshots of the problem and send them to me via the *Feedback* instructions below.
 
 ## Limitations & Future Features
-At this time, ObsidianClipper will only clip the test portion of an email and not HTML content (e.g. embedded images, bold or italics, etc) or attachments. If you're a user who is interested in these or other features, please let me know via the *Feedback* instructions below.
+At this time, ObsidianClipper will only clip the text portion of an email and not HTML content (i.e. embedded images, bold or italics, etc). It will also not save attachments. If you're a user who is interested in these or other features, please let me know via the *Feedback* instructions below. Otherwise I will assume there is no demand for them.
 
 ## Questions? Feedback?
 ObsidianClipper is still a work in progress. If you have any questions or want to give me feedback, please reach out to me on the contact links above or via the contact page on my personal website, [KevinHaw.com](http://www.kevinhaw.com).
