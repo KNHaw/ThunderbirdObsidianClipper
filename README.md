@@ -39,6 +39,8 @@ If ObsidianClipper is not properly working, please take a moment to reread the i
 At this time, ObsidianClipper will only clip the text portion of an email and not HTML content (i.e. embedded images, bold or italics, etc). It will also not save attachments. If you're a user who is interested in these or other features, please let me know via the *Feedback* instructions below. Otherwise I will assume there is no demand for them.
 
 ## Questions? Feedback?
-ObsidianClipper is still a work in progress. If you have any questions or want to give me feedback, please reach out to me on the contact links above or via the contact page on my personal website, [KevinHaw.com](http://www.kevinhaw.com).
+ObsidianClipper is still a work in progress. If you have any questions or want to give me feedback, please reach out to me on the contact links above,
+by [filing an issue on GitHub](https://github.com/KNHaw/ThunderbirdObsidianClipper/issues)
+or via the contact page on my personal website, [KevinHaw.com](http://www.kevinhaw.com).
 
 I hope this Add-On proves useful to you.

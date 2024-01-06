@@ -19,7 +19,6 @@ function onError(error) {
 var defaultParameters = [];
 defaultParameters["obsidianVaultName"] = "_myNotes";
 defaultParameters["noteFolderPath"] = "ClippedEmails";
-defaultParameters["unicodeCharSub"] = true;
 defaultParameters["noteFilenameTemplate"] = "Email (_MSGDATE) : _MSGSUBJECT";
 defaultParameters["noteContentTemplate"] = 
     "Tagged: #email\n" +
@@ -30,8 +29,9 @@ defaultParameters["noteContentTemplate"] =
     "Recipients: _MSGRECIPENTS\n\n" +
     "---\n\n" +
     "_MSGCONTENT";
-
-
+defaultParameters["unicodeCharSub"] = true;
+defaultParameters["subSpacesWithUnderscores"] = false;
+defaultParameters["additionalDisallowedChars"] = "[]#^";
 
 // Store the data to local storage with the given key
 function parameterStore(key, value) {
@@ -119,15 +119,12 @@ function loadOptionsFields(storedParameters)
 // Main execution path
 ///////////////////////
 
-// Set up event listeners for buttons
+// Set up event listeners for buttons.
 document.getElementById('submit-obsidianVaultName').onclick = function() {storeOption("obsidianVaultName"); };
 document.getElementById('default-obsidianVaultName').onclick = function() {storeDefault("obsidianVaultName"); };
 
 document.getElementById('submit-noteFolderPath').onclick = function() {storeOption("noteFolderPath"); };
 document.getElementById('default-noteFolderPath').onclick = function() {storeDefault("noteFolderPath"); };
-
-document.getElementById('submit-unicodeCharSub').onclick = function() {storeOption("unicodeCharSub"); };
-document.getElementById('default-unicodeCharSub').onclick = function() {storeDefault("unicodeCharSub"); };
 
 document.getElementById('submit-noteFilenameTemplate').onclick = function() {storeOption("noteFilenameTemplate"); };
 document.getElementById('default-noteFilenameTemplate').onclick = function() {storeDefault("noteFilenameTemplate"); };
@@ -135,8 +132,14 @@ document.getElementById('default-noteFilenameTemplate').onclick = function() {st
 document.getElementById('submit-noteContentTemplate').onclick = function() {storeOption("noteContentTemplate"); };
 document.getElementById('default-noteContentTemplate').onclick = function() {storeDefault("noteContentTemplate"); };
 
+document.getElementById('submit-unicodeCharSub').onclick = function() {storeOption("unicodeCharSub"); };
+document.getElementById('default-unicodeCharSub').onclick = function() {storeDefault("unicodeCharSub"); };
 
+document.getElementById('submit-subSpacesWithUnderscores').onclick = function() {storeOption("subSpacesWithUnderscores"); };
+document.getElementById('default-subSpacesWithUnderscores').onclick = function() {storeDefault("subSpacesWithUnderscores"); };
 
+document.getElementById('submit-additionalDisallowedChars').onclick = function() {storeOption("additionalDisallowedChars"); };
+document.getElementById('default-additionalDisallowedChars').onclick = function() {storeDefault("additionalDisallowedChars"); };
 
 
 // Get the stored parameters and pass them to a function to populate fields.
