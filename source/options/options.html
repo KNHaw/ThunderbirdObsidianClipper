@@ -57,13 +57,16 @@
         <li><b>_NOTETIME</b> - The current time.</li>
         </ul>
   </li>
-  <li>Message Information: \
+  <li>Message Information:
         <ul>
         <li><b>_MSGDATE</b> - The message date.</li>
         <li><b>_MSGTIME</b> - The message time.</li>
         <li><b>_MSGSUBJECT</b> - The message subject.</li>
         <li><b>_MSGRECIPENTS</b> - List of all message recipients.</li>
         <li><b>_MSGAUTHOR</b> - The message author.</li>
+        <li><b>_MSGTAGSLIST</b> - Email tags in a hashtag spaced list.</li>
+        <li><b>_MSGIDURI</b> - A URI that can be clicked to open the message.</li>
+            <ul><li>For example, '[click here to open](_MSGURI)' will create a link in your note that when clicked will open the email in your client.</li></ul>
         <li><b>_MSGCONTENT</b> - The actual text content of the message.</li>
         </ul>
   </li>
@@ -74,6 +77,7 @@
   <p>Be sure to include the leading underscore ("_") and all capital letters ("_MSGAUTHOR") 
   when using any of the above placeholders in your template.
   <p>
+  <h2>Filename Template</h2>
   <form>
     <label><b>Use the filename template below</b></label>
     <input type="text" id="noteFilenameTemplate">
@@ -84,6 +88,7 @@
   <hr>
   
   <p>
+  <h2>Note Content Template</h2>
   <form>
     <label><b>Use the Note Content Template Below</b></label>
     
@@ -93,6 +98,13 @@
     <button id="default-noteContentTemplate">Restore Default</button>
   </form>
   
+  
+  
+  <hr>
+  <h1>Time and Date Format</h1>
+  Please pick the preferred format for each of these fields:
+  
+  <h2>
   
   <hr>
   <h1>Filename Correction</h1>

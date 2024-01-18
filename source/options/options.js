@@ -21,12 +21,13 @@ defaultParameters["obsidianVaultName"] = "_myNotes";
 defaultParameters["noteFolderPath"] = "ClippedEmails";
 defaultParameters["noteFilenameTemplate"] = "Email (_MSGDATE) : _MSGSUBJECT";
 defaultParameters["noteContentTemplate"] = 
-    "Tagged: #email\n" +
+    "Tagged: #email _MSGTAGSLIST\n" +
     "Created: _NOTEDATE, _NOTETIME\n" +
     "Subject: _MSGSUBJECT\n" +
     "Message Date: _MSGDATE, _MSGTIME\n" +
     "Author: _MSGAUTHOR\n" +
-    "Recipients: _MSGRECIPENTS\n\n" +
+    "Recipients: _MSGRECIPENTS\n" +
+    "[Click to open message in email client](_MSGIDURI)\n\n" +
     "---\n\n" +
     "_MSGCONTENT";
 defaultParameters["unicodeCharSub"] = true;

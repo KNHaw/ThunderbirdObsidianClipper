@@ -93,6 +93,8 @@ function buildMessageBody(msgPart)
 {
     let messageText = "";
     
+    console.log("popup.js - buildMessageBody -  msgPart.contentType=" +  msgPart.contentType);
+    
     // See if there's plaintext email content
     if (typeof msgPart.body !== 'undefined' && msgPart.contentType == "text/plain") {
             messageText = messageText + msgPart.body;
@@ -100,6 +102,11 @@ function buildMessageBody(msgPart)
         
     // Is there a parts[] array?
     if(typeof msgPart.parts !== 'undefined') {
+        
+        
+    console.log("popup.js - buildMessageBody -      msgPart.parts.length=" + msgPart.parts.length);
+    
+        
         // Loop through all elements of the parts[] array
         for (let i = 0; i < msgPart.parts.length; ++i) {
             // For each of those elements, add element's .body, if it exists
@@ -113,7 +120,6 @@ function buildMessageBody(msgPart)
 async function clipEmail(storedParameters)
 {
     // Read the passed parameters that configure the app.
-    
     let obsidianVaultName = "";
     let noteFolderPath = "";
     let useUnicodeInFilenames = false;
@@ -154,12 +160,38 @@ async function clipEmail(storedParameters)
     // Request the full message to access its full set of headers.
     let full = await messenger.messages.getFull(message.id);
 
-    // Extract data from the message
+    // Extract data from the message headers
     let messageSubject = message.subject;
     let messageAuthor = message.author;
+    // TODO: Break out time/date fields for user
     let messageDate = message.date.toLocaleDateString();
     let messageTime = message.date.toLocaleTimeString();
-
+    
+    // Create a mail "mid:" URI with the message ID
+    // TODO: Put in template subsitition so it's only processed if used
+    let messageIdUri = "mid:" + message.headerMessageId;        // Create a mail "mid:" URI with the message ID
+    console.log("popup.js - clipEmail - messageIdUri= " + messageIdUri);
+    
+    // Build the message tag list that refelcts howthe email was tagged.
+    // TODO: Put in a function so it's not processed if not used
+    let messageTagList = "";
+    if(undefined != message.tags) {
+        // Get a master list of tags known by Thunderbird
+        let knownTagArray = await messenger.messages.listTags();
+        
+        // Loop through the tags on the email and find any matches
+        for (var currMsgTagKeyString of message.tags) {
+            // Check for a match of the email's tag against the master list.
+            // Note that we're testing ".key" values here. Human readable strings are processed after a match.
+            var matchingTagEntry = knownTagArray.find((t) => t.key == currMsgTagKeyString);
+            if(undefined != matchingTagEntry) {
+                // We have a match. Take the human readable string, replace spaces, and add 
+                // to our list with a hashtag so Obsidian knows it's a tag.
+                messageTagList = messageTagList + " #" + matchingTagEntry.tag.replaceAll(' ', '-');
+            }
+        }
+    }
+    
     // Build comma delimited list of recipients from message
     let messageRecipients = "";
     if(message.recipients.length == 0) {
@@ -188,6 +220,8 @@ async function clipEmail(storedParameters)
     // Extract message body text from the message.
     let messageBody = "";
     messageBody = buildMessageBody(full);
+    
+    console.log("popup.js - clipEmail - messageBody: " + messageBody);
 
     // Build note name and content from templates and message data.
     // Use these placeholders for note and time content:
@@ -202,11 +236,13 @@ async function clipEmail(storedParameters)
         _MSGSUBJECT:messageSubject,
         _MSGRECIPENTS:messageRecipients,
         _MSGAUTHOR:messageAuthor,
+        _MSGTAGSLIST:messageTagList,
+        _MSGIDURI:messageIdUri,
         _MSGCONTENT:messageBody,
         _NOTEDATE:thisMoment.toLocaleDateString(),
         _NOTETIME:thisMoment.toLocaleTimeString(),
     };
-    const templateRegExp = /_MSGDATE|_MSGTIME|_MSGSUBJECT|_MSGRECIPENTS|_MSGAUTHOR|_MSGCONTENT|_NOTEDATE|_NOTETIME/gi;
+    const templateRegExp = /_MSGDATE|_MSGTIME|_MSGSUBJECT|_MSGRECIPENTS|_MSGAUTHOR|_MSGTAGSLIST|_MSGIDURI|_MSGCONTENT|_NOTEDATE|_NOTETIME/gi;
 
     // Substitute the template fields with the actual message and note data
     let noteSubject = noteTitleTemplate.replaceAll(templateRegExp, function(matched){
