@@ -53,14 +53,18 @@
   <ul> 
   <li>Note Information:
         <ul>
-        <li><b>_NOTEDATE</b> - The current date.</li>
-        <li><b>_NOTETIME</b> - The current time.</li>
+        <li><b>_NOTEDATE</b> - The current date. Fields from the note date are inserted with these other symbols:</li>
+            <ul><li><b>_NOTEYEAR</b> for a 4 digit year, <b>_NOTEMONTH</b> for a 01-12 month, or <b>_NOTEDAY</b> for a 00-31 day of the month.</li></ul>
+        <li><b>_NOTETIME</b> - The current time. Fields from the note time are inserted with these symbols:</li>
+            <ul><li><b>_NOTEHOUR</b> for the 00-23 hour, <b>_NOTEMIN</b> for a 00-59 minute, or <b>_NOTESEC</b> for a 00-59 second.</li></ul>
         </ul>
   </li>
   <li>Message Information:
         <ul>
-        <li><b>_MSGDATE</b> - The message date.</li>
-        <li><b>_MSGTIME</b> - The message time.</li>
+        <li><b>_MSGDATE</b> - The message date. Fields from the message date are inserted with these other symbols:</li>
+            <ul><li><b>_MSGYEAR</b> for a 4 digit year, <b>_MSGMONTH</b> for a 01-12 month, or <b>_MSGDAY</b> for a 00-31 day of the month.</li></ul>
+        <li><b>_MSGTIME</b> - The message time. Fields from the message time are inserted with these symbols:</li>
+            <ul><li><b>_MSGHOUR</b> for the 00-23 hour, <b>_MSGMIN</b> for a 00-59 minute, or <b>_MSGSEC</b> for a 00-59 second.</li></ul>
         <li><b>_MSGSUBJECT</b> - The message subject.</li>
         <li><b>_MSGRECIPENTS</b> - List of all message recipients.</li>
         <li><b>_MSGAUTHOR</b> - The message author.</li>

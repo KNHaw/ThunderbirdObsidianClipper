@@ -248,6 +248,14 @@ async function clipEmail(storedParameters)
     const thisMoment = new Date();   // For note time and date
     var templateMap = {
         _MSGDATE:message.date.toLocaleDateString(),
+        
+        _MSGYEAR:String(message.date.getFullYear()),
+        _MSGMONTH:String(message.date.getMonth()+1).padStart(2, '0'),
+        _MSGDAY:String(message.date.getDate()).padStart(2, '0'),
+        _MSGHOUR:String(message.date.getHours()).padStart(2, '0'),
+        _MSGMIN:String(message.date.getMinutes()).padStart(2, '0'),
+        _MSGSEC:String(message.date.getSeconds()).padStart(2, '0'),
+        
         _MSGTIME:message.date.toLocaleTimeString(),
         _MSGSUBJECT:messageSubject,
         _MSGRECIPENTS:messageRecipients,
@@ -255,11 +263,21 @@ async function clipEmail(storedParameters)
         _MSGTAGSLIST:messageTagList,
         _MSGIDURI:messageIdUri,
         _MSGCONTENT:messageBody,
+        
         _NOTEDATE:thisMoment.toLocaleDateString(),
-        _NOTETIME:thisMoment.toLocaleTimeString(),
-    };
-    const templateRegExp = /_MSGDATE|_MSGTIME|_MSGSUBJECT|_MSGRECIPENTS|_MSGAUTHOR|_MSGTAGSLIST|_MSGIDURI|_MSGCONTENT|_NOTEDATE|_NOTETIME/gi;
+        _NOTEYEAR:String(thisMoment.getFullYear()),
+        _NOTEMONTH:String(thisMoment.getMonth()+1).padStart(2, '0'),
+        _NOTEDAY:String(thisMoment.getDate()).padStart(2, '0'),
 
+        _NOTETIME:thisMoment.toLocaleTimeString(),
+        _NOTEHOUR:String(thisMoment.getHours()).padStart(2, '0'),
+        _NOTEMIN:String(thisMoment.getMinutes()).padStart(2, '0'),
+        _NOTESEC:String(thisMoment.getSeconds()).padStart(2, '0'),
+    };
+    
+    // Build a regular expression that will trip on each key in templateMap
+    const templateRegExp = new RegExp(Object.keys(templateMap).join('|'), 'gi');
+    
     // Substitute the template fields with the actual message and note data
     let noteSubject = noteTitleTemplate.replaceAll(templateRegExp, function(matched){
       return templateMap[matched];
