@@ -1,5 +1,5 @@
 //
-// popup.js - Code for the Obsidian Clipper AddOn for Thunderbird to save a selected mail message .
+// popup.js - Code for the Obsidian Clipper Add-on for Thunderbird to save a selected mail message .
 //
 
 
@@ -135,7 +135,7 @@ async function clipEmail(storedParameters)
         (storedParameters["noteFilenameTemplate"] == undefined) ||
         (storedParameters["noteContentTemplate"] == undefined) ) {
             alert("ERROR: Please configure ObsidianClipper on its Options page before using.\n" +
-                "Look in Settings->Add-Ons Manager->Obsidian Clipper->Options tab");
+                "Look in Settings->Add-ons Manager->Obsidian Clipper->Options tab");
             return;
         } else {
         // Load parameters from storage
@@ -171,7 +171,6 @@ async function clipEmail(storedParameters)
     // Extract data from the message headers
     let messageSubject = message.subject;
     let messageAuthor = message.author;
-    // TODO: Break out time/date fields for user
     let messageDate = message.date.toLocaleDateString();
     let messageTime = message.date.toLocaleTimeString();
     
@@ -201,7 +200,7 @@ async function clipEmail(storedParameters)
                     // Add tag and enclosing HTML to the tag list
                      messageTagList = messageTagList + "<span style=\"color:" + matchingTagEntry.color + ";\">" + tagText + "</span>";
                 } else {
-                    // Add tag to the tag list
+                    // Add tag to the tag list without HTML
                      messageTagList = messageTagList + tagText;
                 }
             }
@@ -313,13 +312,13 @@ async function clipEmail(storedParameters)
     
     // Create new note
     // Supposedly, there's a defacto 200 char limit to URIs (https://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers)
-    // HOwever, testing fo 12K+ emails is fine.
+    // However, testing fof12K+ emails is fine.
     // TODO: If there's problems with long notes, add a loop with APPEND for note content to handle bigger emails.
     let openedWindow;
     openedWindow = window.open(obsidianUri, "_self");
 
     // Put up a status message in case above window open failed.
-    document.getElementById("status").textContent = "If this window does not close, something has failed. Check the Vault Name and other parameters in the Obsidian Clipper addOn options window.";
+    document.getElementById("status").textContent = "If this window does not close, something has failed. Check the Vault Name and other parameters in the Obsidian Clipper Add-on options window.";
 }
 
 // Get the stored parameters and pass them to a function to populate fields.

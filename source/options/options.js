@@ -1,5 +1,5 @@
 //
-// options.js - Handle Options tab for Obsidian Clipper AddOn for Thunderbird.
+// options.js - Handle Options tab for Obsidian Clipper Add-on for Thunderbird.
 //
 
 /* generic error handler */
@@ -9,7 +9,7 @@ function onError(error) {
 
 
 ///////////////////////////////////////////////////////////////
-// DEBUG: Start with a clean slate when tesing AddOn...
+// DEBUG: Start with a clean slate when tesing Add-on...
 // console.log("DEBUG: Clearing local store values for testing...");
 // browser.storage.local.clear();
 ///////////////////////////////////////////////////////////////
