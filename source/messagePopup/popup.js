@@ -127,11 +127,11 @@ async function clipEmail(storedParameters)
     let noteTemplate = "";
     let subSpacesWithUnderscores = false;
     let additionalDisallowedChars = "";
+    let useColorCodedMsgTags = true;
 
     // Check stored parameters - test  options that cause fatal errors if not present
     if( (storedParameters["obsidianVaultName"] == undefined) ||
         (storedParameters["noteFolderPath"] == undefined) ||
-        (storedParameters["unicodeCharSub"] == undefined) ||
         (storedParameters["noteFilenameTemplate"] == undefined) ||
         (storedParameters["noteContentTemplate"] == undefined) ) {
             alert("ERROR: Please configure ObsidianClipper on its Options page before using.\n" +
@@ -145,7 +145,15 @@ async function clipEmail(storedParameters)
         noteTitleTemplate = storedParameters["noteFilenameTemplate"];
         noteTemplate = storedParameters["noteContentTemplate"];
         subSpacesWithUnderscores = storedParameters["subSpacesWithUnderscores"];
-        additionalDisallowedChars = storedParameters["additionalDisallowedChars"];
+        additionalDisallowedChars = storedParameters["additionalDisallowedChars"]; 
+        useColorCodedMsgTags = storedParameters["useColorCodedMsgTags"];
+        
+        // Correct any parameters the won't cause fatal errors when missing
+        // by setting default values.
+        if(undefined == useUnicodeInFilenames) {useUnicodeInFilenames = true;}
+        if(undefined == subSpacesWithUnderscores) {subSpacesWithUnderscores = true;}
+        if(undefined == additionalDisallowedChars) {additionalDisallowedChars = "";}
+        if(undefined == useColorCodedMsgTags) {useColorCodedMsgTags = true;}
         }
 
     // Get the active tab in the current window using the tabs API.
@@ -185,9 +193,17 @@ async function clipEmail(storedParameters)
             // Note that we're testing ".key" values here. Human readable strings are processed after a match.
             var matchingTagEntry = knownTagArray.find((t) => t.key == currMsgTagKeyString);
             if(undefined != matchingTagEntry) {
-                // We have a match. Take the human readable string, replace spaces, and add 
-                // to our list with a hashtag so Obsidian knows it's a tag.
-                messageTagList = messageTagList + " #" + matchingTagEntry.tag.replaceAll(' ', '-');
+                // We have a match. Take the human readable string, replace spaces, and add a hashtag.
+                var tagText = " #" + matchingTagEntry.tag.replaceAll(' ', '-');
+                
+                // Does the user want colored tags?
+                if( (useColorCodedMsgTags) && (undefined != matchingTagEntry.color) ) {
+                    // Add tag and enclosing HTML to the tag list
+                     messageTagList = messageTagList + "<span style=\"color:" + matchingTagEntry.color + ";\">" + tagText + "</span>";
+                } else {
+                    // Add tag to the tag list
+                     messageTagList = messageTagList + tagText;
+                }
             }
         }
     }

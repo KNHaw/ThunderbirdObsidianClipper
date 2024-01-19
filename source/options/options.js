@@ -30,6 +30,7 @@ defaultParameters["noteContentTemplate"] =
     "[Click to open message in email client](_MSGIDURI)\n\n" +
     "---\n\n" +
     "_MSGCONTENT";
+defaultParameters["useColorCodedMsgTags"] = true;
 defaultParameters["unicodeCharSub"] = true;
 defaultParameters["subSpacesWithUnderscores"] = false;
 defaultParameters["additionalDisallowedChars"] = "[]#^";
@@ -133,6 +134,9 @@ document.getElementById('default-noteFilenameTemplate').onclick = function() {st
 document.getElementById('submit-noteContentTemplate').onclick = function() {storeOption("noteContentTemplate"); };
 document.getElementById('default-noteContentTemplate').onclick = function() {storeDefault("noteContentTemplate"); };
 
+document.getElementById('submit-useColorCodedMsgTags').onclick = function() {storeOption("useColorCodedMsgTags"); };
+document.getElementById('default-useColorCodedMsgTags').onclick = function() {storeDefault("useColorCodedMsgTags"); };
+
 document.getElementById('submit-unicodeCharSub').onclick = function() {storeOption("unicodeCharSub"); };
 document.getElementById('default-unicodeCharSub').onclick = function() {storeDefault("unicodeCharSub"); };
 
@@ -141,6 +145,10 @@ document.getElementById('default-subSpacesWithUnderscores').onclick = function()
 
 document.getElementById('submit-additionalDisallowedChars').onclick = function() {storeOption("additionalDisallowedChars"); };
 document.getElementById('default-additionalDisallowedChars').onclick = function() {storeDefault("additionalDisallowedChars"); };
+
+
+
+
 
 
 // Get the stored parameters and pass them to a function to populate fields.
