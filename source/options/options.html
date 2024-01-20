@@ -80,7 +80,7 @@
   that single wombats in your area reached out to you to chat on February 30th, 2023).
   <p>Be sure to include the leading underscore ("_") and all capital letters ("_MSGAUTHOR") 
   when using any of the above placeholders in your template.
-  <p>
+  
   <h2>Filename Template</h2>
   <form>
     <label><b>Use the filename template below</b></label>
@@ -93,8 +93,7 @@
   <p>
   <h2>Note Content Template</h2>
   <form>
-    <label><b>Use the Note Content Template Below</b></label>
-    
+  <label><b>Use the Note Content Template Below</b></label>
   <textarea id="noteContentTemplate">
   </textarea>
     <button id="submit-noteContentTemplate">Save</button>
@@ -104,7 +103,7 @@
   
   <hr>
   <h1>Color Coded Note Tags</h1>
-  When using the _MSGTAGSLIST field in a note content template, the Add-on will insert HTML code
+  When using the _MSGTAGSLIST field in a note content template, the add-on will insert HTML code
   around each tag by default so the text matches the tag's color. If you do not want HTML code in your
   Obsidian notes or do not want colored text for these tags, uncheck the box below.
   <form> 
@@ -123,25 +122,42 @@
   based on your operating system or personal preferences. Select from
   the below options to customize how filenames for notes should be
   formatted.
+  <p>None of this applies to the actual content of a note, just the name of the note in the Obsidian vault.
   
   <h2>Additional Disallowed Characters</h2>
   <form>
-    <label><b>In addition to the characters mentioned above, also strip or replace
-  these characters</b></label>
+    <label><b>In addition to the characters mentioned above, also delete or replace
+  these characters. (This does not include spaces - that is a special case below).</b></label>
     <input type="text" id="additionalDisallowedChars">
     <button id="submit-additionalDisallowedChars">Save</button>
     <button id="default-additionalDisallowedChars">Restore Default</button>
   </form>
   
-  <h2>Strip or Replace Disallowed Characters</h2>
+  
+  
+  <h2>Delete or Replace Disallowed Characters</h2>
+  When a disallowed character defined above is found in a note's file name,
+  this add-on can either replace it with a different character or delete it entirely.
+  In the box below, you can specify tht character. If the box is left empty, disallowed
+  characters are instead deleted.
+  
+  <form>
+  <label><b>Replace disallowed characters with this character:</b></label>
+  <input type="text" id="noteNameReplaceChar" maxlength="1" size="1" style="width:30px">
+    <button id="submit-noteNameReplaceChar">Save</button>
+    <button id="default-noteNameReplaceChar">Restore Default</button>
+  <form>
+  
+  <h2>Use Unicode Equivilent characters</h2>
   Some characters have Unicode equivilents that can be used to substitute them.
   For example, the question mark ('?') could be replaced by the Unicode
-  glottal stop character ('&#x0294;'). When this Add-on finds a disallowed
-  character in a note title, it can either to substitute the character or just 
-  strip it out. Windows and Linux can usually handle this substitution without
+  glottal stop character ('&#x0294;'). When this add-on finds a disallowed
+  character in a note title, it can either delete or replace the character as chosen 
+  above or substitute one of these equivilents.
+  <p>If you would like the add-on to try to find a Unicode equilient character, leave the selection below set.
+  Windows and Linux can usually handle this substitution without
   difficulty, but if you are not sure about your system or are having problems with
-  Unicode characters in your Obsidian vault you may want to uncheck the selection below.
-  <p>If you do that, please let the development team know about your problem by <a href="https://github.com/KNHaw/ThunderbirdObsidianClipper/issues">filing an issue about it</a>.
+  Unicode characters in your Obsidian vault you may want to instead uncheck the selection below.
   
   
   <form> 
@@ -154,7 +170,7 @@
   
   <h2>Spaces in Filenames</h2>
   Spaces in filenames are a special case and some users prefer to replace them with
-  underscore characters ('_'). Use the checkbox below to customize how this Add-on
+  underscore characters ('_'). Use the checkbox below to customize how this add-on
   handles spaces in filenames.
   <form> 
     <label><b>Replace spaces in filenames with underscores</b></label>
@@ -162,6 +178,13 @@
     <button id="submit-subSpacesWithUnderscores">Save</button>
     <button id="default-subSpacesWithUnderscores">Restore Default</button>
   </form>
+  
+  <h1>Getting Help</h1>
+  If you are experiencing a problem with the add-on and changing the above settings did not help,
+  please let the development team know about your problem by <a href="https://github.com/KNHaw/ThunderbirdObsidianClipper/issues">filing an issue about it</a>.
+  
+  
+  <font color="white">GNU Terry Pratchett</font> <!-- If you know what this means, then you know what this means. -->
 
   
   <script src="options.js"></script>

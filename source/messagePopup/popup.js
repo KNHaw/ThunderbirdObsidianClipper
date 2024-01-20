@@ -1,5 +1,5 @@
 //
-// popup.js - Code for the Obsidian Clipper Add-on for Thunderbird to save a selected mail message .
+// popup.js - Code for the Obsidian Clipper add-on for Thunderbird to save a selected mail message .
 //
 
 
@@ -41,13 +41,13 @@ function onError(error) {
     };
     
 
-// Function to replace a reserved charatcer with its Unicode equivilent
-function subUnicodeChar(c) {
+// Function to replace a reserved character with its Unicode equivilent or default replacement
+function replaceUnicodeChar(c, defaultReplace="") {
     let newChar = unicodeSubs[c];
     
-    // If not found, return empty string so character will be stripped form filename
+    // If Unicode match not found, return default replacement character
     if(newChar == undefined) {
-        newChar = "";
+        newChar = defaultReplace;
     }
     
     return newChar;
@@ -55,10 +55,12 @@ function subUnicodeChar(c) {
 
 
 // Function to change characters that are illegal in Obsidian file names to something palatable
-function correctObsidianFilename(noteFileName, useUnicodeChars=true, subSpacesWithUnderscores=false, additionalDisallowedChars='')
+function correctObsidianFilename(noteFileName, useUnicodeChars=true, subSpacesWithUnderscores=false, additionalDisallowedChars='', noteNameReplaceChar='-')
 {
+    // Replace any whitespace in the replacement character with a null string so it deletes instead.
+    noteNameReplaceChar = noteNameReplaceChar.replaceAll(/\s/g, "");
     
-    // Start with a list of reserved charatcers to replace. Because backslashes noramnlly escape special charatcers, it's
+    // Start with a list of reserved characters to replace. Because backslashes normally escape special charatcers, it's
     // necesarry to escape them. Use four backslashes on this line to get two in searchString. Those two escape to have
     // the RegExp() call below search on a single backslash 
     let searchString = '|\\\\/"<>*:?';
@@ -70,16 +72,17 @@ function correctObsidianFilename(noteFileName, useUnicodeChars=true, subSpacesWi
         searchString = searchString + '\\' + c;
     });
     
-    // Either replace or strip reserved characters.
+    // Either replace or strip reserved characters. Begin with any unicode replacement user requested.
     let searchRegExp = new RegExp("[" + searchString + "]", "g");
     if(true == useUnicodeChars) {
-        noteFileName = noteFileName.replace(searchRegExp, m=>subUnicodeChar(m) );
+        noteFileName = noteFileName.replace(searchRegExp, m=>replaceUnicodeChar(m, noteNameReplaceChar) );
     }
-    else{
-        noteFileName = noteFileName.replace(searchRegExp, '');
+    else {
+        // Use normal character sustitution on requested characters.
+        noteFileName = noteFileName.replace(searchRegExp, noteNameReplaceChar);
     }
     
-    // Now sub spaces with underscores if requested
+    // Finally, sub spaces with underscores if requested
     if(true == subSpacesWithUnderscores) {
         noteFileName = noteFileName.replaceAll(' ', '_');
     }
@@ -127,6 +130,7 @@ async function clipEmail(storedParameters)
     let noteTemplate = "";
     let subSpacesWithUnderscores = false;
     let additionalDisallowedChars = "";
+    let noteNameReplaceChar = "-";
     let useColorCodedMsgTags = true;
 
     // Check stored parameters - test  options that cause fatal errors if not present
@@ -146,13 +150,15 @@ async function clipEmail(storedParameters)
         noteTemplate = storedParameters["noteContentTemplate"];
         subSpacesWithUnderscores = storedParameters["subSpacesWithUnderscores"];
         additionalDisallowedChars = storedParameters["additionalDisallowedChars"]; 
+        noteNameReplaceChar = storedParameters["noteNameReplaceChar"];
         useColorCodedMsgTags = storedParameters["useColorCodedMsgTags"];
         
         // Correct any parameters the won't cause fatal errors when missing
-        // by setting default values.
+        // by giving them default values.
         if(undefined == useUnicodeInFilenames) {useUnicodeInFilenames = true;}
         if(undefined == subSpacesWithUnderscores) {subSpacesWithUnderscores = true;}
         if(undefined == additionalDisallowedChars) {additionalDisallowedChars = "";}
+        if(undefined == noteNameReplaceChar) {noteNameReplaceChar = "-";}
         if(undefined == useColorCodedMsgTags) {useColorCodedMsgTags = true;}
         }
 
@@ -177,7 +183,6 @@ async function clipEmail(storedParameters)
     // Create a mail "mid:" URI with the message ID
     // TODO: Put in template subsitition so it's only processed if used
     let messageIdUri = "mid:" + message.headerMessageId;        // Create a mail "mid:" URI with the message ID
-    console.log("popup.js - clipEmail - messageIdUri= " + messageIdUri);
     
     // Build the message tag list that refelcts howthe email was tagged.
     // TODO: Put in a function so it's not processed if not used
@@ -286,7 +291,7 @@ async function clipEmail(storedParameters)
     });
 
     // Now, replace characters that are not supported in Obsidian filenames.
-    noteSubject = correctObsidianFilename(noteSubject, useUnicodeInFilenames, subSpacesWithUnderscores, additionalDisallowedChars);
+    noteSubject = correctObsidianFilename(noteSubject, useUnicodeInFilenames, subSpacesWithUnderscores, additionalDisallowedChars, noteNameReplaceChar);
 
     console.log("popup.js: Note subject: \"" + noteSubject + "\"");
     console.log("popup.js: Note content:\n" + noteContent);
@@ -318,7 +323,7 @@ async function clipEmail(storedParameters)
     openedWindow = window.open(obsidianUri, "_self");
 
     // Put up a status message in case above window open failed.
-    document.getElementById("status").textContent = "If this window does not close, something has failed. Check the Vault Name and other parameters in the Obsidian Clipper Add-on options window.";
+    document.getElementById("status").textContent = "If this window does not close, something has failed. Check the Vault Name and other parameters in the Obsidian Clipper add-on options window.";
 }
 
 // Get the stored parameters and pass them to a function to populate fields.

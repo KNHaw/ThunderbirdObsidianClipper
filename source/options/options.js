@@ -1,5 +1,5 @@
 //
-// options.js - Handle Options tab for Obsidian Clipper Add-on for Thunderbird.
+// options.js - Handle Options tab for Obsidian Clipper add-on for Thunderbird.
 //
 
 /* generic error handler */
@@ -9,7 +9,7 @@ function onError(error) {
 
 
 ///////////////////////////////////////////////////////////////
-// DEBUG: Start with a clean slate when tesing Add-on...
+// DEBUG: Start with a clean slate when testing add-on...
 // console.log("DEBUG: Clearing local store values for testing...");
 // browser.storage.local.clear();
 ///////////////////////////////////////////////////////////////
@@ -34,6 +34,7 @@ defaultParameters["useColorCodedMsgTags"] = true;
 defaultParameters["unicodeCharSub"] = true;
 defaultParameters["subSpacesWithUnderscores"] = false;
 defaultParameters["additionalDisallowedChars"] = "[]#^";
+defaultParameters["noteNameReplaceChar"] = "-";
 
 // Store the data to local storage with the given key
 function parameterStore(key, value) {
@@ -146,10 +147,8 @@ document.getElementById('default-subSpacesWithUnderscores').onclick = function()
 document.getElementById('submit-additionalDisallowedChars').onclick = function() {storeOption("additionalDisallowedChars"); };
 document.getElementById('default-additionalDisallowedChars').onclick = function() {storeDefault("additionalDisallowedChars"); };
 
-
-
-
-
+document.getElementById('submit-noteNameReplaceChar').onclick = function() {storeOption("noteNameReplaceChar"); };
+document.getElementById('default-noteNameReplaceChar').onclick = function() {storeDefault("noteNameReplaceChar"); };
 
 // Get the stored parameters and pass them to a function to populate fields.
 browser.storage.local.get(null).then(loadOptionsFields, onError);
