@@ -7,7 +7,7 @@ ObsidianClipper is an add-on for the Thunderbird email client that lets a user c
   - You can download Obsidian for free [here](https://obsidian.md/download).
   - You can install the *Obsidian Clipper* add-on into Thunderbird in two ways:
     - By searching for "ObsdianClipper" in the Add-on mMnager (*Settings->Add-ons Manager*).
-    - Or by downloading a file from the [Thuderbird Add-on Site](https://add-ons.thunderbird.net/en-US/thunderbird/add-on/obsidianclipper/), clicking the "Download Now" button to get an XPI file, and installing that file from the add-on manager (*Add-on Manager->Settings->Install Add-on From File*).
+    - Or by downloading a file from the [Thuderbird Add-on Site](https://addons.thunderbird.net/en-US/thunderbird/addon/obsidianclipper/), clicking the "Download Now" button to get an XPI file, and installing that file from the add-on manager (*Add-on Manager->Settings->Install Add-on From File*).
 - After installing ObsidianClipper to your Thunderbird client, select the Options tab (*Settings->add-ons Manager->Obsidian Clipper->Options tab*) and configure the add-on to work with Obsidian on your machine.
   - *Obsidian Vault Name* - is the name of the vault you created to keep your notes in when you set up Obsidian.
   - *Note Folder Path* - an optional parameter that allows the user to specifiy a location within the
