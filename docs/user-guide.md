@@ -62,7 +62,7 @@ If you are interested in this feature, follow the steps below:
 - In Obsidian, open *Settings*. Then, under *Appearance->CSS snippets*, select Open snippets folder (folder icon).
 
 
-![Here is what Obsidian CSS Snippets controls look like](./snippets1.png)
+![Here is what Obsidian CSS Snippets controls look like](./Snippets1.png)
 
 - In the snippets folder, use Notepad (Windows), gedit (Linux), or another text editor to create a text file
 ending in ".css" (for example, ThunderbirdClipperColoredTags.css).
@@ -72,7 +72,7 @@ to the CSS snippet file. saving the file.
 - Back in Obsidian, under *Appearance->CSS snippets*, select Reload snippets (refresh icon) to see the snippet 
 in the list. Then click on the enable switch (right column, under teh folder and refresh icons) to activate the snippet.
 
-![CSS Snippet Enable](./snippets2.png)
+![CSS Snippet Enable](./Snippets2.png)
 
 
 You're done! The tags for emails you clip should have matching colors to the tags you use in Thunderbird.
