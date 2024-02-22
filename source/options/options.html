@@ -101,17 +101,7 @@
   </form>
   
   
-  <hr>
-  <h1>Color Coded Note Tags</h1>
-  When using the _MSGTAGSLIST field in a note content template, the add-on will insert HTML code
-  around each tag by default so the text matches the tag's color. If you do not want HTML code in your
-  Obsidian notes or do not want colored text for these tags, uncheck the box below.
-  <form> 
-    <label><b>Use color coded note tags</b></label>
-    <input type="checkbox" id="useColorCodedMsgTags">
-    <button id="submit-useColorCodedMsgTags">Save</button>
-    <button id="default-useColorCodedMsgTags">Restore Default</button>
-  </form>
+  
   
   <hr>
   <h1>Filename Correction</h1>
@@ -179,9 +169,31 @@
     <button id="default-subSpacesWithUnderscores">Restore Default</button>
   </form>
   
+  
+  
+  <hr>
+  <h1>Color Coded Note Tags (Optional Feature)</h1>
+  The _MSGTAGSLIST placeholder described above tells the add-on
+  to insert any category tags that are attached to the clipped email by Thuderbird
+  into the clipped note. Optionally, you can make the colors of 
+  these tags match the color used in Thunderbird by adding the text below as a CSS
+  snippet in Obsidian. You can learn more by reading about <a href="https://help.obsidian.md/Extending+Obsidian/CSS+snippets">
+  CSS snippets in Obsidian</a> or by using the step by step instructions
+  in the User Guide for this add-on,
+  linked below.
+  
+  <form>
+      <label><b>Cut and paste this text into an Obsidian CSS snippet to have colored tags<b></label>
+      <textarea id="colorCodedTagsCss" readonly>
+      </textarea>
+  </form>
+  
+  
   <h1>Getting Help</h1>
-  If you are experiencing a problem with the add-on and changing the above settings did not help,
-  please let the development team know about your problem by <a href="https://github.com/KNHaw/ThunderbirdObsidianClipper/issues">filing an issue about it</a>.
+  If you are experiencing a problem with the add-on, please visit the 
+  add-on <a href="https://github.com/KNHaw/ThunderbirdObsidianClipper">homepage</a>
+  and check the <a href="https://github.com/KNHaw/ThunderbirdObsidianClipper/docs/user-guide.md">User Guide</a>.
+  If this does not help, please let the development team know about your problem by <a href="https://github.com/KNHaw/ThunderbirdObsidianClipper/issues">filing an issue about it</a>.
   
   
   <font color="white">GNU Terry Pratchett</font> <!-- If you know what this means, then you know what this means. -->

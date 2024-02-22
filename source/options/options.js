@@ -118,6 +118,65 @@ function loadOptionsFields(storedParameters)
     }
 }
 
+async function setupColorCodedTagsCssField()
+{
+    var elem = document.getElementById("colorCodedTagsCss");
+    
+    // Build base block of CSS. Due to the use of the template literals, source file indenting is hosed for a moment...
+    let cssBlock =
+ `/*---- tag formatting ----*/
+.markdown-source-view .cm-hashtag {
+  background: var(--color-base-10);
+  color: var(--tag-color);
+  /*border-top: 2px solid;
+  border-bottom: 2px solid;*/
+  line-height: 2em;
+  font-weight: 500;
+}
+.markdown-source-view .cm-hashtag-begin {
+  /*border-left: 2px solid;*/
+  padding-top: 1px;
+  padding-right: 1px;
+  padding-bottom: 3.5px;
+}
+.markdown-source-view .cm-hashtag-end {
+  /*border-right: 2px solid;*/
+  padding-top: 1px;
+  padding-bottom: 3.5px;
+}
+.markdown-preview-view .tag {
+  background: var(--color-base-10);
+  color: var(--tag-color);
+  /*border: 2px solid;*/
+  line-height: 2em;
+  font-weight: 500;
+}
+
+/*---- tag colors ----*/
+`;
+
+    // Get a master list of tags known by Thunderbird
+    let knownTagArray = await messenger.messages.listTags();    
+    
+    // Loop through tagz and append tag to the CSS
+    for (var currTag of knownTagArray) {
+        // Take the human readable string for the tag name and replace spaces.
+        var tagText = currTag.tag.replaceAll(' ', '-');
+        
+        // Build a color entry for the CSS of the following form (TAGCOLOR already has a leading hashtag):
+        //  .cm-tag-TAGNAME, [href="#TAGNAME"] { --tag-color: TAGCOLOR
+        var tagCss = "\n.cm-tag-" + tagText + ", [href=\"#" + tagText + "\"] { --tag-color: " + currTag.color + "}";
+        
+        // Add the line of CSS
+        cssBlock = cssBlock + tagCss;
+    }
+
+
+
+    elem.value = cssBlock;
+    
+}
+
 ///////////////////////
 // Main execution path
 ///////////////////////
@@ -135,9 +194,6 @@ document.getElementById('default-noteFilenameTemplate').onclick = function() {st
 document.getElementById('submit-noteContentTemplate').onclick = function() {storeOption("noteContentTemplate"); };
 document.getElementById('default-noteContentTemplate').onclick = function() {storeDefault("noteContentTemplate"); };
 
-document.getElementById('submit-useColorCodedMsgTags').onclick = function() {storeOption("useColorCodedMsgTags"); };
-document.getElementById('default-useColorCodedMsgTags').onclick = function() {storeDefault("useColorCodedMsgTags"); };
-
 document.getElementById('submit-unicodeCharSub').onclick = function() {storeOption("unicodeCharSub"); };
 document.getElementById('default-unicodeCharSub').onclick = function() {storeDefault("unicodeCharSub"); };
 
@@ -152,5 +208,9 @@ document.getElementById('default-noteNameReplaceChar').onclick = function() {sto
 
 // Get the stored parameters and pass them to a function to populate fields.
 browser.storage.local.get(null).then(loadOptionsFields, onError);
+
+// Populate the special case colorCodedTagsCss field.
+setupColorCodedTagsCssField();
+
 
 

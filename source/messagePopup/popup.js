@@ -131,7 +131,6 @@ async function clipEmail(storedParameters)
     let subSpacesWithUnderscores = false;
     let additionalDisallowedChars = "";
     let noteNameReplaceChar = "-";
-    let useColorCodedMsgTags = true;
 
     // Check stored parameters - test  options that cause fatal errors if not present
     if( (storedParameters["obsidianVaultName"] == undefined) ||
@@ -151,7 +150,6 @@ async function clipEmail(storedParameters)
         subSpacesWithUnderscores = storedParameters["subSpacesWithUnderscores"];
         additionalDisallowedChars = storedParameters["additionalDisallowedChars"]; 
         noteNameReplaceChar = storedParameters["noteNameReplaceChar"];
-        useColorCodedMsgTags = storedParameters["useColorCodedMsgTags"];
         
         // Correct any parameters the won't cause fatal errors when missing
         // by giving them default values.
@@ -159,7 +157,6 @@ async function clipEmail(storedParameters)
         if(undefined == subSpacesWithUnderscores) {subSpacesWithUnderscores = true;}
         if(undefined == additionalDisallowedChars) {additionalDisallowedChars = "";}
         if(undefined == noteNameReplaceChar) {noteNameReplaceChar = "-";}
-        if(undefined == useColorCodedMsgTags) {useColorCodedMsgTags = true;}
         }
 
     // Get the active tab in the current window using the tabs API.
@@ -184,6 +181,9 @@ async function clipEmail(storedParameters)
     // TODO: Put in template subsitition so it's only processed if used
     let messageIdUri = "mid:" + message.headerMessageId;        // Create a mail "mid:" URI with the message ID
     
+    
+    // KNH TODO - axe color tag stuff below in favor of CSS solution...
+    
     // Build the message tag list that refelcts howthe email was tagged.
     // TODO: Put in a function so it's not processed if not used
     let messageTagList = "";
@@ -200,14 +200,8 @@ async function clipEmail(storedParameters)
                 // We have a match. Take the human readable string, replace spaces, and add a hashtag.
                 var tagText = " #" + matchingTagEntry.tag.replaceAll(' ', '-');
                 
-                // Does the user want colored tags?
-                if( (useColorCodedMsgTags) && (undefined != matchingTagEntry.color) ) {
-                    // Add tag and enclosing HTML to the tag list
-                     messageTagList = messageTagList + "<span style=\"color:" + matchingTagEntry.color + ";\">" + tagText + "</span>";
-                } else {
-                    // Add tag to the tag list without HTML
-                     messageTagList = messageTagList + tagText;
-                }
+                // Add tag to the tag list
+                messageTagList = messageTagList + tagText;
             }
         }
     }
@@ -328,4 +322,3 @@ async function clipEmail(storedParameters)
 
 // Get the stored parameters and pass them to a function to populate fields.
 browser.storage.local.get(null).then(clipEmail, onError);
-
