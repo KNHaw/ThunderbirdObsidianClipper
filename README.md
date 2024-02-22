@@ -30,7 +30,8 @@ Once your email has been clipped, it will look like the screenshot below. By def
 
 ![This is what a clipped email message looks like in Obsidian. The location for the note, the format of the file name, and the format of the note itself are all customized via the "Options" tab..](docs/ClippedNote.png)
 
-
+## More Help
+See the [User Guide](./docs/user-guide.md) for more help on using the add-on and for troubleshooting advice.
 
 ## Bugs
 If ObsidianClipper is not properly working, please take a moment to reread the instructions and reinstall the add-on. If the problem is still happening, take screenshots of the problem and send them to me via the *Feedback* instructions below.
