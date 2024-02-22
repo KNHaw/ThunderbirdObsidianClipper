@@ -79,7 +79,7 @@ You're done! The tags for emails you clip should have matching colors to the tag
 Should you change those colors or add new tags, just redo the process above.
 
 More information can be found about this color tag technique [on this post in the Obsidian Forums](https://forum.obsidian.md/t/markup-tags-inside-html/75810/5).
-Thanks to users [ariehen](https://forum.obsidian.md/u/ariehen], [CawlinTeffid](https://forum.obsidian.md/u/CawlinTeffid], [gapmiss](https://forum.obsidian.md/u/gapmiss]
+Thanks to users [ariehen](https://forum.obsidian.md/u/ariehen), [CawlinTeffid](https://forum.obsidian.md/u/CawlinTeffid), and [gapmiss](https://forum.obsidian.md/u/gapmiss)
 who helped document it.
 
 
