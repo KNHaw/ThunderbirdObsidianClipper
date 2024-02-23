@@ -7,8 +7,3 @@
 // }
 // 
 // browser.runtime.onMessage.addListener(handleMessage);
-
-
-
-// 
-alert("Background JS running");

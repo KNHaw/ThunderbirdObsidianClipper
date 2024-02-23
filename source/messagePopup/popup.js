@@ -320,5 +320,12 @@ async function clipEmail(storedParameters)
     document.getElementById("status").textContent = "If this window does not close, something has failed. Check the Vault Name and other parameters in the Obsidian Clipper add-on options window.";
 }
 
+
+///////////////////////
+// Main execution path
+///////////////////////
+
+
+
 // Get the stored parameters and pass them to a function to populate fields.
 browser.storage.local.get(null).then(clipEmail, onError);
