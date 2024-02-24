@@ -8,7 +8,7 @@ or [at the project GitHub page](https://github.com/KNHaw/ThunderbirdObsidianClip
 - [Usage](#Usage)
 - [Add-on Options](#Add-on-Options)
 - [Colored Message Tags (Optional Feature)](#Colored-Message-Tags-Optional-Feature)
-- [Questions? Feedback](#Questions-Feedback)
+- [Questions? Feedback?](#Questions-Feedback)
 
 ## Installation
 - You will first need to have the Obsidian notetaking app on your local platform as well as the Thunderbird email client.
