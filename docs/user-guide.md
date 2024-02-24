@@ -3,6 +3,13 @@ ObsidianClipper is an add-on for the Thunderbird email client that lets a user c
 or [at the project GitHub page](https://github.com/KNHaw/ThunderbirdObsidianClipper/).
 
 
+## Table of Contents
+- [Installation](#Installation)
+- [Usage](#Usage)
+- [Add-on Options](#Add-on-Options)
+- [Colored Message Tags (Optional Feature)](#Colored-Message-Tags-Optional-Feature)
+- [Questions? Feedback](#Questions-Feedback)
+
 ## Installation
 - You will first need to have the Obsidian notetaking app on your local platform as well as the Thunderbird email client.
   - You can download Thunderbird for free [here](https://www.thunderbird.net/en-US/download/).
