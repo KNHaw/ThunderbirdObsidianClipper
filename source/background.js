@@ -7,3 +7,6 @@
 // }
 // 
 // browser.runtime.onMessage.addListener(handleMessage);
+
+
+console.log("KNH DEBUG - background.js is running!!!");

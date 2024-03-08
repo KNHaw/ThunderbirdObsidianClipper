@@ -27,6 +27,8 @@ defaultParameters["noteContentTemplate"] =
     "Message Date: _MSGDATE, _MSGTIME\n" +
     "Author: _MSGAUTHOR\n" +
     "Recipients: _MSGRECIPENTS\n" +
+    "CC: _MSGCC\n" +
+    "BCC: _MSGBCC\n" +
     "[Click to open message in email client](_MSGIDURI)\n\n" +
     "---\n\n" +
     "_MSGCONTENT";

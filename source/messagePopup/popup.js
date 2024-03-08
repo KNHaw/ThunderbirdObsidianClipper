@@ -105,11 +105,6 @@ function buildMessageBody(msgPart)
         
     // Is there a parts[] array?
     if(typeof msgPart.parts !== 'undefined') {
-        
-        
-    console.log("popup.js - buildMessageBody -      msgPart.parts.length=" + msgPart.parts.length);
-    
-        
         // Loop through all elements of the parts[] array
         for (let i = 0; i < msgPart.parts.length; ++i) {
             // For each of those elements, add element's .body, if it exists
@@ -118,6 +113,64 @@ function buildMessageBody(msgPart)
     }
     return messageText;
 }
+
+// Function to get "to," "cc," and "bcc" fields and format them as requested.
+function getRecipients(msg, field, yamlFormat=false)
+{
+    let recipientArray = "";
+    let messageRecipients = "";
+    
+    // Get the correct array of recipents.
+    if(field == "to") {
+       recipientArray = msg.recipients;
+    } else if (field == "cc") {
+       recipientArray = msg.ccList;
+    } else if (field == "bcc") {
+       recipientArray = msg.bccList;
+    } else {
+        // Not a match - throw an error
+        console.log("getRecipients() error - unrecognized field "+ field);
+        return "";
+    }
+    
+    // Now, build a list of recipients based on user request
+    if(yamlFormat == false) {
+        // Build comma delimited list of recipients from message
+        if(recipientArray.length == 0) {
+            messageRecipients = "None Listed";
+        }
+        else {
+            for (let index = 0; index < recipientArray.length; ++index) {
+                // Add commas if we have a multi recipent list
+                if(index > 0) {
+                    messageRecipients = messageRecipients + ", ";
+                }
+                
+                // Add next recipient
+                const nextRecipient = recipientArray[index];
+                messageRecipients = messageRecipients + nextRecipient;
+            }
+        }
+    } else {
+        // Build a YAML formatted list of recipients from message
+        if(recipientArray.length == 0) {
+            messageRecipients = "";
+        }
+        else {
+            for (let index = 0; index < recipientArray.length; ++index) {
+                
+                // Add next recipient to the list. Replace quotes with backslashed quotes, per YAML specification.
+                const nextRecipient = recipientArray[index].replaceAll('\"', '\\"');
+                
+                // Make a new line with 
+                messageRecipients = messageRecipients + "\n- \"" + nextRecipient + "\"";
+            }
+        }
+    }
+    
+    return messageRecipients;
+}
+
 
 // Function to actually clip the email. Pass in the saved array of parameters.
 async function clipEmail(storedParameters)
@@ -181,9 +234,6 @@ async function clipEmail(storedParameters)
     // TODO: Put in template subsitition so it's only processed if used
     let messageIdUri = "mid:" + message.headerMessageId;        // Create a mail "mid:" URI with the message ID
     
-    
-    // KNH TODO - axe color tag stuff below in favor of CSS solution...
-    
     // Build the message tag list that refelcts howthe email was tagged.
     // TODO: Put in a function so it's not processed if not used
     let messageTagList = "";
@@ -206,25 +256,6 @@ async function clipEmail(storedParameters)
         }
     }
     
-    // Build comma delimited list of recipients from message
-    let messageRecipients = "";
-    if(message.recipients.length == 0) {
-        messageRecipients = "None Listed";
-    }
-    else {
-        for (let index = 0; index < message.recipients.length; ++index) {
-            // Add commas if we have a multi recipent list
-            if(index > 0) {
-                messageRecipients = messageRecipients + ", ";
-            }
-            
-            // Add next recipient
-            const nextRecipient = message.recipients[index];
-            messageRecipients = messageRecipients + nextRecipient;
-        }
-    }
-        
-
     // Update the HTML fields of popup.html with the message subject, sender and date.
     document.getElementById("subject").textContent = messageSubject;
     document.getElementById("from").textContent = messageAuthor;
@@ -256,11 +287,17 @@ async function clipEmail(storedParameters)
         
         _MSGTIME:message.date.toLocaleTimeString(),
         _MSGSUBJECT:messageSubject,
-        _MSGRECIPENTS:messageRecipients,
         _MSGAUTHOR:messageAuthor,
         _MSGTAGSLIST:messageTagList,
         _MSGIDURI:messageIdUri,
         _MSGCONTENT:messageBody,
+        
+        _MSGRECIPENTS_YAML:getRecipients(message, "to", true),
+        _MSGCC_YAML:getRecipients(message, "cc", true),
+        _MSGBCC_YAML:getRecipients(message, "bcc", true),
+        _MSGRECIPENTS:getRecipients(message, "to"),
+        _MSGCC:getRecipients(message, "cc"),
+        _MSGBCC:getRecipients(message, "bcc"),
         
         _NOTEDATE:thisMoment.toLocaleDateString(),
         _NOTEYEAR:String(thisMoment.getFullYear()),

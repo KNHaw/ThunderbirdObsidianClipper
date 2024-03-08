@@ -7,11 +7,13 @@ or [at the project GitHub page](https://github.com/KNHaw/ThunderbirdObsidianClip
 - [Installation](#Installation)
 - [Usage](#Usage)
 - [Add-on Options](#Add-on-Options)
+- [Placeholders](#Placeholders)
+- [Obsidian Frontmatter Properties](#Obsidian-Frontmatter-Properties)
 - [Colored Message Tags (Optional Feature)](#Colored-Message-Tags-Optional-Feature)
 - [Questions? Feedback?](#Questions-Feedback)
 
 ## Installation
-- You will first need to have the Obsidian notetaking app on your local platform as well as the Thunderbird email client.
+- To use ObsidianClipper, you will first need to have the Obsidian notetaking app on your local platform as well as the Thunderbird email client.
   - You can download Thunderbird for free [here](https://www.thunderbird.net/en-US/download/).
   - You can download Obsidian for free [here](https://obsidian.md/download).
   - You can install the *Obsidian Clipper* add-on into Thunderbird in two ways:
@@ -50,11 +52,57 @@ If you are unsure of your vault name or have not set up a vault on your local ma
   in the location indicated in 'Settings->Files & Links->Default location for new notes'.
   By default, this is usually the most recent folder in use in the Obsidian app.
 - *Note Filename and Content Templates* - These two fields allow a user to specify how notes clipped from emails are named and how 
-data is saved in Obsidian by use of placeholders in the text. See the Options tab of the add-on for an up to date list of
-supported placeholders.
+  data is saved in Obsidian by use of placeholders in the text. See the Options tab of the add-on for a brief rundown of the
+  different placeholder fields or the [Placeholders](#Placeholders) section of this guide for the definitive list of
+  supported placeholders.
 - *Filename Correction and Disallowed Characters* - these fields detail how the clipper should process characters that might be disallowed by
 the Obsidian app or your computer's filesystem.
+- *Color Coded Note Tags (Optional Feature)* - This field is detailed in the [section below of the same name](#Colored-Message-Tags-Optional-Feature).
 
+
+## Placeholders
+Message specific information can be inserted into a note by putting "placeholders" into the *Filename Template* and *Note Content Template* fields in the options tab.
+These placeholders and what is substituted in the clipped note are detailed below:
+- *_NOTEDATE* - The current date. Fields from the note date are inserted with these other symbols:
+    - *_NOTEYEAR* for a 4 digit year, *_NOTEMONTH* for a 01-12 month, or *_NOTEDAY* for a 00-31 day of the month.
+- *_NOTETIME* - The current time. Fields from the note time are inserted with these symbols:
+    - *_NOTEHOUR* for the 00-23 hour, *_NOTEMIN* for a 00-59 minute, or *_NOTESEC* for a 00-59 second.
+- *_MSGDATE* - The message date. Fields from the message date are inserted with these other symbols:
+    - *_MSGYEAR* for a 4 digit year, *_MSGMONTH* for a 01-12 month, or *_MSGDAY* for a 00-31 day of the month.
+- *_MSGTIME* - The message time. Fields from the message time are inserted with these symbols:
+    - *_MSGHOUR* for the 00-23 hour, *_MSGMIN* for a 00-59 minute, or *_MSGSEC* for a 00-59 second.
+- *_MSGSUBJECT* - The message subject.
+- *_MSGRECIPENTS* - List of all message recipients (in the email "to" field).
+    - Similarly, *_MSGCC* will list the addresses from the "cc" field and *_MSGBCC* will list the addresses from "bcc"
+    - Additionally, the *_MSGRECIPENTS_YAML*, *_MSGCC_YAML*, and *_MSGBCC_YAML* placeholders provide the same data in a 
+        format that can be used in Obsidian [frontmatter properties](https://help.obsidian.md/Editing+and+formatting/Properties).
+        See the [Obsidian Frontmatter Properties](#Obsidian-Frontmatter-Properties) section below for an example.
+- *_MSGAUTHOR* - The message author.
+- *_MSGTAGSLIST* - Include [Email catagory tags](https://support.mozilla.org/en-US/kb/message-tags) in a hashtag spaced list. See below for color coding options.
+- *_MSGIDURI* - A URI that can be clicked to open the message.
+    - For example, the text \"`[click here to open](_MSGURI)`\" will create a link in your note that when clicked will open the email in your client.
+- *_MSGCONTENT* - The actual text content of the message.
+    
+  
+## Obsidian Frontmatter Properties
+It is possible set the *Note Content Template* field to embed Obsidian [frontmatter properties](https://help.obsidian.md/Editing+and+formatting/Properties) into a clipped
+note by inserting a label and content between two \"`---`\" markdown lines. These allow the Obsidian database to be searched in a more efficient and powerful way.
+
+The *_MSGRECIPENTS_YAML*, *_MSGCC_YAML*, and *_MSGBCC_YAML* placeholders provide lists of data that are formatted specifically to support this feature.
+
+Should you choose to use these features of Obsidian, here is a sample YAML header you may want to place at the top of your Note Content Template:
+
+```
+---
+Note Created: _NOTEDATE, _NOTETIME
+Message Subject: _MSGSUBJECT
+Message Date: _MSGDATE, _MSGTIME
+Message Author: _MSGAUTHOR
+Message Recipients: _MSGRECIPENTS_YAML
+CC: _MSGCC_YAML
+BCC: _MSGBCC_YAML
+---
+```
 
 
 ## Colored Message Tags (Optional Feature)

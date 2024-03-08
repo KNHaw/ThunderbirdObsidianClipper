@@ -64,7 +64,13 @@
         <li><b>_MSGTIME</b> - The message time. Fields from the message time are inserted with these symbols:</li>
             <ul><li><b>_MSGHOUR</b> for the 00-23 hour, <b>_MSGMIN</b> for a 00-59 minute, or <b>_MSGSEC</b> for a 00-59 second.</li></ul>
         <li><b>_MSGSUBJECT</b> - The message subject.</li>
-        <li><b>_MSGRECIPENTS</b> - List of all message recipients.</li>
+        <li><b>_MSGRECIPENTS</b> - List of all message recipients (in the email "to" field).</li>
+            <ul>
+            <li>Similarly, <b>_MSGCC</b> will list the addresses from the "cc" field and <b>_MSGBCC</b> will list the addresses from "bcc"</li>
+            <li>Additionally, the <b>_MSGRECIPENTS_YAML</b>, <b>_MSGCC_YAML</b>, and <b>_MSGBCC_YAML</b> placeholders provide the same data in a 
+                format that can be used in Obsidian <a href-"https://help.obsidian.md/Editing+and+formatting/Properties">frontmatter properties.</a>
+                See the <a href="https://github.com/KNHaw/ThunderbirdObsidianClipper/blob/main/docs/user-guide.md">User Guide</a> for an example.</li>
+            </ul>
         <li><b>_MSGAUTHOR</b> - The message author.</li>
         <li><b>_MSGTAGSLIST</b> - Include <a href="https://support.mozilla.org/en-US/kb/message-tags">Email catagory tags</a> in a hashtag spaced list. See below for color coding options.</li>
         <li><b>_MSGIDURI</b> - A URI that can be clicked to open the message.</li>
