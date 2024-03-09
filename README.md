@@ -33,7 +33,7 @@ Once your email has been clipped, it will look like the screenshot below. By def
 
 ## Getting More Help
 If ObsidianClipper is not properly working, please take a moment to reread the instructions and reinstall the add-on. If the problem is still happening, please check out the 
-[Troubleshooting section of the User Guide](./docs/user-guide.md#Troubleshoting).
+[Troubleshooting section of the User Guide](./docs/user-guide.md#Troubleshooting).
 
 ## Limitations & Future Features
 At this time, ObsidianClipper will only clip the text portion of an email and not HTML content (i.e. embedded images, bold or italics, etc). It will also not save attachments. If you're a user who is interested in these or other features, please let me know via the *Feedback* instructions below. Otherwise I will assume there is no demand for them.

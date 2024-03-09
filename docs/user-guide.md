@@ -138,22 +138,24 @@ More information can be found about this color tag technique [on this post in th
 Thanks to users [ariehen](https://forum.obsidian.md/u/ariehen), [CawlinTeffid](https://forum.obsidian.md/u/CawlinTeffid), and [gapmiss](https://forum.obsidian.md/u/gapmiss)
 who helped document it.
 
-##Troubleshooting
+## Troubleshooting
 If ObsidianClipper is not working for you, please take a moment to reread the instructions and reinstall the add-on. You might also consider reinstalling Obsidian on your computer as well.
 
 If that does not work, please try some of the steps below.
 
 ### Obsidian Does Not open
 If you clip a note and Obsidian does not open, it's possible you are having a problem with the Obsidian URI schema. The [Obsidian website](https://help.obsidian.md/Extending+Obsidian/Obsidian+URI) does
-a good job of explaining it, but eh important thing to understand is that ObsidianClipper uses links of the form `obsidian://<some stuff>` in order to write notes to Obsidian.
-A good way to test this is to open a web browser on your maching, `obsidian://open`, and press the and hit return. You're supposed to get a prompt asking you 
+a good job of explaining it, but the important thing to understand is that ObsidianClipper uses links of the form `obsidian://<some stuff>` in order to write notes to Obsidian.
+A good way to test this is to open a web browser on your machine, type in `obsidian://open`, and press return. You're supposed to get a prompt asking you 
 if you want to open the link with Obsidian as seen below.
 
 ![Testing the Obsidian URI from a browser](./ObsidianUriTest.png)
 
 If you do not see a prompt like the one above then the Obsidian URI sheme is no working on your machine. Linux requires a special setup procedure such as the one 
 [here](https://amir.rachum.com/obsidian-uri-linux/) (note that the development team has not tried this out - please let us know how it works
-via the feedback links below). If you are having problems in Windows or MacIntosh, please let us know and we can try to fix the issue.
+via the feedback links below). If you are having problems in Windows or MacIntosh, please let us know and we can try to fix the issue. 
+Similarly, if you resolve this issue on your own 
+please reach out to our team so we can post a solution here for future users.
 
 ### Obsidian Vault Problems
 If you clip an email and see a "Vault Not Found" error, the *Obsidian Vault Name* field is not set properly. If you are unsure of your 
@@ -161,7 +163,7 @@ vault name or have not set up a vault on your local machine yet, go to the [Obsi
 
 ### Blank Note Content
 First, there is currently a [limitation ](https://github.com/KNHaw/ThunderbirdObsidianClipper/issues/13) that HTML mail 
-(those with pictures or links or text formatting like *bold *or /italic/) may not clip correctly. If your selected emails 
+(those with pictures or links or text formatting like bold or italic) may not clip correctly. If your selected emails 
 are HMTL, this could be happening. To rule this problem out, create a simple one line test email with plain text ("Hello, world!"), 
 send it to yourself, and see if it clips correctly.
 
@@ -172,10 +174,11 @@ The current plan is to support HTML email at some point in the first half of 202
 If you do not see the expected content in a note that has been clipped, look at the *Note Content Template* field in the options menu
 and make sure that the *_MSGCONTENT* placeholder is present. If is isn't, the body of your email will not be clipped.
 
-If this happens, insert the *_MSGCONTENT* placeholder  *Note Content Template* field and save it or use the "Restore Default" button to go abck to a known, good baseline.
+If this happens, insert the *_MSGCONTENT* placeholder into the *Note Content Template* field and save it 
+or use the "Restore Default" button to go back to a known, good baseline.
 
 ### Capturing a Debug Log
-If you have tried the above and have not fixed your problem, you should capture a deubug log and send to to the development team via the feedback links below.
+If you have tried the above and have not fixed your problem, you should capture a debug log and send it to the development team via the feedback links below.
 Just be sure to remove any sensitive information such as email addresses before sending in debug data.
 
 #### Step 1
@@ -189,11 +192,12 @@ From the Debug tab, scroll down to Obsidian Clipper and click the "Inspect" butt
 ![Step 2 of capturing a debug log](./debuglog_step2.png)
 
 #### Step 3
-You will see the debug console launch. Back in Thunderbird, select an email and try to clip it (please pick a test email that does not have sensitive information). 
+You will see the debug console launch in a new window. Back in Thunderbird, select an email and try to clip it 
+(please pick a test email that does not have sensitive information). 
 You should see some text appear on the console log (lower right corner). Right click on any of that text and select "Copy All Messages." 
 This will put the log into the clipboard, which you can then put in the notepad application or place in an email back to the development team.
 
-![Step 3 of capturing a debug log](./debuglog_step2.png)
+![Step 3 of capturing a debug log](./debuglog_step3.png)
 
 
 ## Questions? Feedback?
