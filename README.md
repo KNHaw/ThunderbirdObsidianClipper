@@ -15,7 +15,7 @@ ObsidianClipper is an add-on for the Thunderbird email client that lets a user c
   in the location indicated in 'Settings->Files & Links->Default location for new notes'.
   - *Note Filename and Content Templates* - allow you to specify how your clipped emails will be formatted and how the files will be named.
 
-![Here is what the *Options* tab looks like](docs/OptionsTab.png =x250)
+![Here is what the *Options* tab looks like](docs/OptionsTab.png)
 
 
 - After you've installed and configured the add-on, you're ready to clip emails!
@@ -23,12 +23,12 @@ ObsidianClipper is an add-on for the Thunderbird email client that lets a user c
 ## Usage
 To use ObsidianClipper, just select an email and look for the "Obsidian" icon on the header (where you will also find the Reply and Forward buttons). Press the "Obsidian" button and your Obsidian application will launch and load your vault and your email will be clipped into Obsidian. 
 
-![Click on the Obsidian Clipper icon when viewing a message to save it into Obsidian.](docs/MessagePane.png =x250)
+![Click on the Obsidian Clipper icon when viewing a message to save it into Obsidian.](docs/MessagePane.png)
 
 Once your email has been clipped, it will look like the screenshot below. By default, your note will be in the top level "ClippedEmails" folder (Obsidian will create the folder if needed), but you can change it with the *Note Folder Path* option mentioned above.
 
 
-![This is what a clipped email message looks like in Obsidian. The location for the note, the format of the file name, and the format of the note itself are all customized via the "Options" tab..](docs/ClippedNote.png =x250)
+![This is what a clipped email message looks like in Obsidian. The location for the note, the format of the file name, and the format of the note itself are all customized via the "Options" tab..](docs/ClippedNote.png)
 
 
 ## Getting More Help

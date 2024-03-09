@@ -149,7 +149,7 @@ a good job of explaining it, but eh important thing to understand is that Obsidi
 A good way to test this is to open a web browser on your maching, `obsidian://open`, and press the and hit return. You're supposed to get a prompt asking you 
 if you want to open the link with Obsidian as seen below.
 
-![Testing the Obsidian URI from a browser](./ObsidianUriTest.png =x250)
+![Testing the Obsidian URI from a browser](./ObsidianUriTest.png)
 
 If you do not see a prompt like the one above then the Obsidian URI sheme is no working on your machine. Linux requires a special setup procedure such as the one 
 [here](https://amir.rachum.com/obsidian-uri-linux/) (note that the development team has not tried this out - please let us know how it works
@@ -181,19 +181,19 @@ Just be sure to remove any sensitive information such as email addresses before 
 #### Step 1
 From the Settings menu, select "Add On manager." Then click on the gear tab there and select "Debug Add-ons"
 
-![Step 1 of capturing a debug log](./debuglog_step1.png =x250)
+![Step 1 of capturing a debug log](./debuglog_step1.png)
 
 #### Step 2
 From the Debug tab, scroll down to Obsidian Clipper and click the "Inspect" button.
 
-![Step 2 of capturing a debug log](./debuglog_step2.png =x250)
+![Step 2 of capturing a debug log](./debuglog_step2.png)
 
 #### Step 3
 You will see the debug console launch. Back in Thunderbird, select an email and try to clip it (please pick a test email that does not have sensitive information). 
 You should see some text appear on the console log (lower right corner). Right click on any of that text and select "Copy All Messages." 
 This will put the log into the clipboard, which you can then put in the notepad application or place in an email back to the development team.
 
-![Step 3 of capturing a debug log](./debuglog_step2.png =x250)
+![Step 3 of capturing a debug log](./debuglog_step2.png)
 
 
 ## Questions? Feedback?
