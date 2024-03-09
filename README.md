@@ -15,7 +15,7 @@ ObsidianClipper is an add-on for the Thunderbird email client that lets a user c
   in the location indicated in 'Settings->Files & Links->Default location for new notes'.
   - *Note Filename and Content Templates* - allow you to specify how your clipped emails will be formatted and how the files will be named.
 
-![Here is what the *Options* tab looks like](docs/OptionsTab.png)
+![Here is what the *Options* tab looks like](docs/OptionsTab.png =x250)
 
 
 - After you've installed and configured the add-on, you're ready to clip emails!
@@ -23,25 +23,27 @@ ObsidianClipper is an add-on for the Thunderbird email client that lets a user c
 ## Usage
 To use ObsidianClipper, just select an email and look for the "Obsidian" icon on the header (where you will also find the Reply and Forward buttons). Press the "Obsidian" button and your Obsidian application will launch and load your vault and your email will be clipped into Obsidian. 
 
-![Click on the Obsidian Clipper icon when viewing a message to save it into Obsidian.](docs/MessagePane.png)
+![Click on the Obsidian Clipper icon when viewing a message to save it into Obsidian.](docs/MessagePane.png =x250)
 
 Once your email has been clipped, it will look like the screenshot below. By default, your note will be in the top level "ClippedEmails" folder (Obsidian will create the folder if needed), but you can change it with the *Note Folder Path* option mentioned above.
 
 
-![This is what a clipped email message looks like in Obsidian. The location for the note, the format of the file name, and the format of the note itself are all customized via the "Options" tab..](docs/ClippedNote.png)
+![This is what a clipped email message looks like in Obsidian. The location for the note, the format of the file name, and the format of the note itself are all customized via the "Options" tab..](docs/ClippedNote.png =x250)
 
-## More Help
-See the [User Guide](./docs/user-guide.md) for more help on using the add-on and for troubleshooting advice.
 
-## Bugs
-If ObsidianClipper is not properly working, please take a moment to reread the instructions and reinstall the add-on. If the problem is still happening, take screenshots of the problem and send them to me via the *Feedback* instructions below.
+## Getting More Help
+If ObsidianClipper is not properly working, please take a moment to reread the instructions and reinstall the add-on. If the problem is still happening, please check out the 
+[Troubleshooting section of the User Guide](./docs/user-guide.md#Troubleshoting).
 
 ## Limitations & Future Features
 At this time, ObsidianClipper will only clip the text portion of an email and not HTML content (i.e. embedded images, bold or italics, etc). It will also not save attachments. If you're a user who is interested in these or other features, please let me know via the *Feedback* instructions below. Otherwise I will assume there is no demand for them.
 
 ## Questions? Feedback?
-ObsidianClipper is still a work in progress. If you have any questions or want to give me feedback, please reach out to me on the contact links above,
-by [filing an issue on GitHub](https://github.com/KNHaw/ThunderbirdObsidianClipper/issues)
+ObsidianClipper is still a work in progress. If you have any questions or want to give me feedback, please reach out to to the team
+by [filing an issue on GitHub](https://github.com/KNHaw/ThunderbirdObsidianClipper/issues), via the "Support Email" link on the
+[Thunderbird add-on page](https://addons.thunderbird.net/en-US/thunderbird/addon/obsidianclipper/), 
 or via the contact page on my personal website, [KevinHaw.com](http://www.kevinhaw.com).
+
+If sending screenshots for a bug report or via email, make sure to blur or mark out any sensitive information since the images may be accessible to the wider internet.
 
 I hope this add-on proves useful to you.
