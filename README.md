@@ -1,6 +1,8 @@
 # ThunderbirdObsidianClipper
 ObsidianClipper is an add-on for the Thunderbird email client that lets a user clip messages to the Obsidian notetaking application. Both applications are open source and free to use, just like this add-on!
 
+In addition to the information below, there is a [User Guide](./docs/user-guide.md) giving detailed information on how to use the add-on.
+
 ## Installation
 - You will first need to have the Obsidian notetaking app on your local platform as well as the Thunderbird email client.
   - You can download Thunderbird for free [here](https://www.thunderbird.net/en-US/download/).

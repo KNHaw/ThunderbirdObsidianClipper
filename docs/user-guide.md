@@ -151,7 +151,7 @@ if you want to open the link with Obsidian as seen below.
 
 ![Testing the Obsidian URI from a browser](./ObsidianUriTest.png)
 
-If you do not see a prompt like the one above then the Obsidian URI sheme is no working on your machine. Linux requires a special setup procedure such as the one 
+If you do not see a prompt like the one above then the Obsidian URI sheme is not working on your machine. Linux requires a special setup procedure such as the one 
 [here](https://amir.rachum.com/obsidian-uri-linux/) (note that the development team has not tried this out - please let us know how it works
 via the feedback links below). If you are having problems in Windows or MacIntosh, please let us know and we can try to fix the issue. 
 Similarly, if you resolve this issue on your own 
@@ -161,8 +161,14 @@ please reach out to our team so we can post a solution here for future users.
 If you clip an email and see a "Vault Not Found" error, the *Obsidian Vault Name* field is not set properly. If you are unsure of your 
 vault name or have not set up a vault on your local machine yet, go to the [Obsidian Help](https://help.obsidian.md) page for details.
 
+### Unable to Save Email Attachments
+Currently, the add-on does not support saving mail attachments. However, multiple users have requested this feature and an [issue 
+on GitHub](https://github.com/KNHaw/ThunderbirdObsidianClipper/issues/9) is being used to track progress.
+
+The current plan is to support HTML email attachments at some point in April 2024. Please watch the issue link above for status.
+
 ### Blank Note Content
-First, there is currently a [limitation ](https://github.com/KNHaw/ThunderbirdObsidianClipper/issues/13) that HTML mail 
+First, there is currently a [limitation](https://github.com/KNHaw/ThunderbirdObsidianClipper/issues/13) that HTML mail 
 (those with pictures or links or text formatting like bold or italic) may not clip correctly. If your selected emails 
 are HMTL, this could be happening. To rule this problem out, create a simple one line test email with plain text ("Hello, world!"), 
 send it to yourself, and see if it clips correctly.
@@ -181,17 +187,17 @@ or use the "Restore Default" button to go back to a known, good baseline.
 If you have tried the above and have not fixed your problem, you should capture a debug log and send it to the development team via the feedback links below.
 Just be sure to remove any sensitive information such as email addresses before sending in debug data.
 
-#### Step 1
+#### Capturing a Debug Log- Step 1
 From the Settings menu, select "Add On manager." Then click on the gear tab there and select "Debug Add-ons"
 
 ![Step 1 of capturing a debug log](./debuglog_step1.png)
 
-#### Step 2
+#### Capturing a Debug Log - Step 2
 From the Debug tab, scroll down to Obsidian Clipper and click the "Inspect" button.
 
 ![Step 2 of capturing a debug log](./debuglog_step2.png)
 
-#### Step 3
+#### Capturing a Debug Log - Step 3
 You will see the debug console launch in a new window. Back in Thunderbird, select an email and try to clip it 
 (please pick a test email that does not have sensitive information). 
 You should see some text appear on the console log (lower right corner). Right click on any of that text and select "Copy All Messages." 
