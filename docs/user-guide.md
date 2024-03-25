@@ -151,9 +151,18 @@ if you want to open the link with Obsidian as seen below.
 
 ![Testing the Obsidian URI from a browser](./ObsidianUriTest.png)
 
-If you do not see a prompt like the one above then the Obsidian URI sheme is not working on your machine. Linux requires a special setup procedure such as the one 
+If you do not see a prompt like the one above then the Obsidian URI sheme is not working on your machine. If this is occurring,
+please try one of the following. 
+
+- In Linux, it has been seen that 
+[using AppImage to install Obsidian](https://github.com/KNHaw/ThunderbirdObsidianClipper/issues/2) can cause a problem. If your Obsidian
+installation was via AppImage, try uninstalling it and reinstalling it with Deb.
+    - Thanks to [sevadah](https://github.com/sevadah) and Massimo Bianchetto for helping out with this issue!
+- There is documetnaiton claiming that Linux requires a special setup procedure such as the one 
 [here](https://amir.rachum.com/obsidian-uri-linux/) (note that the development team has not tried this out - please let us know how it works
-via the feedback links below). If you are having problems in Windows or MacIntosh, please let us know and we can try to fix the issue. 
+via the feedback links below).
+- If you are having problems in Windows or MacIntosh, please let us know and we can try to fix the issue. 
+
 Similarly, if you resolve this issue on your own 
 please reach out to our team so we can post a solution here for future users.
 
