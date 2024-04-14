@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "ObsidianClipper",
     "description": "A Thunderbird extension to clip messages to the Obsidian notetaking application.",
-    "version": "0.3.2",
+    "version": "0.4.0",
     "author": "Kevin N. Haw",
     "browser_specific_settings": {
         "gecko": {
@@ -25,8 +25,10 @@
         ]
     },
     "permissions": [
+        "messagesModify",
         "messagesRead",
-        "storage"
+        "storage",
+        "menus"
     ],
     "icons": {
         "64": "images/obsidian-icon-64px.png",
