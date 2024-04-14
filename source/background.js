@@ -226,7 +226,6 @@ async function clipEmail(storedParameters)
     // Log that we're clipping the message
     await displayStatusText("ObsidianClipper: Clipping message.");
     
-
     // Check stored parameters - test  options that cause fatal errors if not present
     if( (storedParameters["obsidianVaultName"] == undefined) ||
         (storedParameters["noteFolderPath"] == undefined) ||
@@ -401,7 +400,11 @@ async function clipEmail(storedParameters)
     setTimeout(deleteStatusLine, STATUSLINE_PERSIST_MS, latestMsgDispTab);
 }
 
-
+// Wrapper to run the email clip code
+function doEmailClip() {
+    // Get the stored parameters and pass them to a function to perform the actual mail clipping.
+    browser.storage.local.get(null).then(clipEmail, onError);
+}
 
 //////////
 // doHandleCommand() - handler for messages from content scripts
@@ -422,8 +425,8 @@ const doHandleCommand = async (message, sender) => {
         case "cliprequest" : {
             console.log("message 'cliprequest' received.");
             
-            // Get the stored parameters and pass them to a function to perform the actual mail clipping.
-            browser.storage.local.get(null).then(clipEmail, onError);
+            // Clip email
+            doEmailClip();
             
             // Reply with status
             return true;
@@ -476,6 +479,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 browser.menus.create({
     title: "ObsidianClipper",
     contexts: ["message_list"],
+    onclick: doEmailClip,
   });  // KNH TODO: Add the callback to function...
 
 // Add listener for status line in the message content tab
