@@ -74,6 +74,18 @@ function deleteStatusLine(tabId) {
     browser.tabs.executeScript(tabId, { code: onelinecommand, });
 }
 
+// Function to read any selected text in an email in a given tab. Returns string of that text
+// or empty string 
+async function readTextSelection(tabId) {
+    const onelinecommand = 'window.getSelection().toString();';
+    var result = await browser.tabs.executeScript(tabId, { code: onelinecommand, });
+    
+    // Return any text selected.
+    console.log("DEBUG: readTextSelection returns \"" + result[0] + "\"");
+    return(result[0]);
+}
+
+
 
 
 ///////////////////////////
@@ -252,7 +264,7 @@ async function clipEmail(storedParameters)
         if(undefined == additionalDisallowedChars) {additionalDisallowedChars = "";}
         if(undefined == noteNameReplaceChar) {noteNameReplaceChar = "-";}
         }
-
+    
     // Get the active tab in the current window using the tabs API.
     let tabs = await messenger.tabs.query({ active: true, currentWindow: true });
 
@@ -297,10 +309,15 @@ async function clipEmail(storedParameters)
         }
     }
     
+    // Extract message body text from the message. First, see if user
+    // selected specific text to be saved.    
+    let messageBody = await readTextSelection(latestMsgDispTab);
     
-    // Extract message body text from the message.
-    let messageBody = "";
-    messageBody = buildMessageBody(full);
+    // Was anything selected?
+    if(messageBody == "") {
+        // No text was selected - get entire message text.
+        messageBody = buildMessageBody(full);
+    }
     
     console.log("popup.js - clipEmail - messageBody: " + messageBody);
 
@@ -480,7 +497,7 @@ browser.menus.create({
     title: "ObsidianClipper",
     contexts: ["message_list"],
     onclick: doEmailClip,
-  });  // KNH TODO: Add the callback to function...
+  });
 
 // Add listener for status line in the message content tab
 browser.messageDisplay.onMessageDisplayed.addListener(async (tab, message) => {
