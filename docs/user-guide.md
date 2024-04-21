@@ -158,6 +158,8 @@ please try one of the following.
 [using AppImage to install Obsidian](https://github.com/KNHaw/ThunderbirdObsidianClipper/issues/2) can cause a problem. If your Obsidian
 installation was via AppImage, try uninstalling it and reinstalling it with Deb.
     - Thanks to [sevadah](https://github.com/sevadah) and [Massimo Bianchetto](https://github.com/mbianchetto) for helping out with this issue!
+- The [Obsdian website has a procedure for registering the Obsidian URI](https://help.obsidian.md/Extending+Obsidian/Obsidian+URI#Register+Obsidian+URI). 
+You may wish to give that a try as well.
 - There is documentation claiming that Linux requires a special setup procedure such as the one 
 [here](https://amir.rachum.com/obsidian-uri-linux/) (note that the development team has not tried this out - please let us know how it works
 via the feedback links below).
