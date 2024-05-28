@@ -5,7 +5,7 @@
 console.log("DEBUG - background.js is running!!!");
 
 // Global constants
-const STATUSLINE_PERSIST_MS = 3000;     // Delete status line messgaes after indicated time
+const STATUSLINE_PERSIST_MS = 10000;    // Delete status line messgaes after indicated time
 
 
 // Global, persistant variables.
@@ -62,15 +62,17 @@ async function displayStatusText(statusString) {
     
     // Post the text to the innerText of the created DIV.
     const onelinecommand = 'document.getElementById("status-line-text").innerText = ' + '"' + statusString + '";';
-    browser.tabs.executeScript(latestMsgDispTab, { code: onelinecommand, });
+    browser.tabs.executeScript(latestMsgDispTab, { code: onelinecommand, })
     
+    // Schedule status line for removal after a given time.
+    setTimeout(deleteStatusLine, STATUSLINE_PERSIST_MS, latestMsgDispTab);
 }
 
 // Function to remove the status message after clip completion
 function deleteStatusLine(tabId) {
     // Delete the status line DIV we have used for posting updates.
-    //const onelinecommand = 'document.getElementById("status-line-text").remove();';
-    const onelinecommand = 'document.getElementById("status-line").remove();';
+    //const onelinecommand = 'document.getElementById("status-line").remove();';
+    const onelinecommand = 'var el = document.getElementById("status-line"); if(el != undefined) {el.remove();}';
     browser.tabs.executeScript(tabId, { code: onelinecommand, });
 }
 
@@ -238,12 +240,21 @@ async function clipEmail(storedParameters)
     // Log that we're clipping the message
     await displayStatusText("ObsidianClipper: Clipping message.");
     
+    
+    // Get the active tab in the current window using the tabs API.
+    let tabs = await messenger.tabs.query({ active: true, currentWindow: true });
+    
+    
+    
+    
+    
     // Check stored parameters - test  options that cause fatal errors if not present
     if( (storedParameters["obsidianVaultName"] == undefined) ||
         (storedParameters["noteFolderPath"] == undefined) ||
         (storedParameters["noteFilenameTemplate"] == undefined) ||
         (storedParameters["noteContentTemplate"] == undefined) ) {
-            alert("ERROR: Please configure ObsidianClipper on its Options page before using.\n" +
+            // Warn user that add-on needs configuring.
+            await displayStatusText("ERROR: Please configure ObsidianClipper on its Options page before using.  " +
                 "Look in Settings->Add-ons Manager->Obsidian Clipper->Options tab");
             return;
         } else {
@@ -265,8 +276,6 @@ async function clipEmail(storedParameters)
         if(undefined == noteNameReplaceChar) {noteNameReplaceChar = "-";}
         }
     
-    // Get the active tab in the current window using the tabs API.
-    let tabs = await messenger.tabs.query({ active: true, currentWindow: true });
 
     // Get the message currently displayed in the active tab, using the
     // messageDisplay API. Note: This needs the messagesRead permission.
@@ -412,9 +421,6 @@ async function clipEmail(storedParameters)
     
     // Log status
     await displayStatusText("ObsidianClipper: Message clipped.");
-    
-    // Scedule status line for removal after a given time.
-    setTimeout(deleteStatusLine, STATUSLINE_PERSIST_MS, latestMsgDispTab);
 }
 
 // Wrapper to run the email clip code
