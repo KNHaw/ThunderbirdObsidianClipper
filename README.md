@@ -29,6 +29,8 @@ To use ObsidianClipper, just select an email and look for the "Obsidian" icon on
 
 Once your email has been clipped, it will look like the screenshot below. By default, your note will be in the top level "ClippedEmails" folder (Obsidian will create the folder if needed), but you can change it with the *Note Folder Path* option mentioned above.
 
+If you only wish to clip a portion of an email's text, select the text before pressing teh Obsidian icon.
+
 
 ![This is what a clipped email message looks like in Obsidian. The location for the note, the format of the file name, and the format of the note itself are all customized via the "Options" tab..](docs/ClippedNote.png)
 
