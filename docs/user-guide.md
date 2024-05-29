@@ -33,7 +33,7 @@ or [at the project GitHub page](https://github.com/KNHaw/ThunderbirdObsidianClip
 - After you've installed and configured the add-on, you're ready to clip emails!
 
 ## Usage
-To use ObsidianClipper, just select an email and look for the "Obsidian" icon on the header (where you will also find the Reply and Forward buttons). Press the "Obsidian" button and your Obsidian application will launch and load your vault and your email will be clipped into Obsidian. 
+To use ObsidianClipper, just select an email and look for the "Obsidian" icon on the header (where you will also find the Reply and Forward buttons). Press the "Obsidian" button and your Obsidian application will launch and load your vault and your email will be clipped into Obsidian. If you only want to clip a portion of the email, select the desired text before clicking on the Obsidian icon.
 
 ![Click on the Obsidian Clipper icon when viewing a message to save it into Obsidian.](./MessagePane.png)
 
