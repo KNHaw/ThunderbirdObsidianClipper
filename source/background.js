@@ -1,12 +1,27 @@
-// Background.js
-
+///////////////////////////////////////////////////////////////////////////////
+//
+// Code for the Thunderbird add-on Obsidian Clipper.
+//
+// ObsidianClipper is an add-on for the Thunderbird email client that lets a 
+// user clip messages to the Obsidian notetaking application. Both 
+// applications are open source and free to use, just like this add-on!
+//
+// Project hosted at https://github.com/KNHaw/ThunderbirdObsidianClipper
+//
+// Code written by Kevin Haw. http://www.KevinHaw.com
+//
+// Released under the Mozilla Public Licence. 
+// See https://github.com/KNHaw/ThunderbirdObsidianClipper/blob/main/LICENSE
+//
+// Background.js - Main execution path
+//
+///////////////////////////////////////////////////////////////////////////////
 
 
 console.log("DEBUG - background.js is running!!!");
 
 // Global constants
 const STATUSLINE_PERSIST_MS = 10000;    // Delete status line messgaes after indicated time
-
 
 // Global, persistant variables.
 var latestMsgDispTab;       // Latest tab recorded on an incoming onMessageDisplay event. Used for later reference.
@@ -52,8 +67,28 @@ function onError(error) {
   console.log("popup.js: " + error);
 }
 
+// Function to post an alert to the user
+async function displayAlert(messageString) {
+    const onelinecommand = 'alert(' + '"' + messageString + '");';
+    return browser.tabs.executeScript(latestMsgDispTab, { code: onelinecommand, });
+}
+
+
+// Function to post an confirmation dialog to the user.
+// Returns true if user selected OK and false on CANCEL.
+async function displayConfirm(messageString) {
+    const onelinecommand = 'confirm(' + '"' + messageString + '");';
+    
+    // Run the confirmation dialog.
+    retval = await browser.tabs.executeScript(latestMsgDispTab, { code: onelinecommand, });
+    
+    // Return the response
+    return retval[0];
+}
+
+
 // Function to display clip status
-async function displayStatusText(statusString) {
+async function displayStatusText(messageString) {
     // First, inject script to create a DIV text element in the message content tab
     // where we can post text.
     await browser.tabs.executeScript(latestMsgDispTab, {
@@ -61,8 +96,8 @@ async function displayStatusText(statusString) {
     })
     
     // Post the text to the innerText of the created DIV.
-    const onelinecommand = 'document.getElementById("status-line-text").innerText = ' + '"' + statusString + '";';
-    browser.tabs.executeScript(latestMsgDispTab, { code: onelinecommand, })
+    const onelinecommand = 'document.getElementById("status-line-text").innerText = ' + '"' + messageString + '";';
+    browser.tabs.executeScript(latestMsgDispTab, { code: onelinecommand, });
     
     // Schedule status line for removal after a given time.
     setTimeout(deleteStatusLine, STATUSLINE_PERSIST_MS, latestMsgDispTab);
@@ -240,13 +275,8 @@ async function clipEmail(storedParameters)
     // Log that we're clipping the message
     await displayStatusText("ObsidianClipper: Clipping message.");
     
-    
     // Get the active tab in the current window using the tabs API.
     let tabs = await messenger.tabs.query({ active: true, currentWindow: true });
-    
-    
-    
-    
     
     // Check stored parameters - test  options that cause fatal errors if not present
     if( (storedParameters["obsidianVaultName"] == undefined) ||
@@ -254,7 +284,7 @@ async function clipEmail(storedParameters)
         (storedParameters["noteFilenameTemplate"] == undefined) ||
         (storedParameters["noteContentTemplate"] == undefined) ) {
             // Warn user that add-on needs configuring.
-            await displayStatusText("ERROR: Please configure ObsidianClipper on its Options page before using.  " +
+            await displayAlert("ERROR: Please configure ObsidianClipper on its Options page before using.  " +
                 "Look in Settings->Add-ons Manager->Obsidian Clipper->Options tab");
             return;
         } else {

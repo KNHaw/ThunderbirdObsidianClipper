@@ -1,9 +1,24 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// Code for the Thunderbird add-on Obsidian Clipper.
+//
+// ObsidianClipper is an add-on for the Thunderbird email client that lets a 
+// user clip messages to the Obsidian notetaking application. Both 
+// applications are open source and free to use, just like this add-on!
+//
+// Project hosted at https://github.com/KNHaw/ThunderbirdObsidianClipper
+//
+// Code written by Kevin Haw. http://www.KevinHaw.com
+//
+// Released under the Mozilla Public Licence. 
+// See https://github.com/KNHaw/ThunderbirdObsidianClipper/blob/main/LICENSE
 //
 // statusLine-script.js - create a status line DIV in a message display script 
 // with a known ID ("status-line-text"). Invoke this by injecting the fileCreatedDate
 // into a tab on reciept of an onMessageDisplayed event. Then change the
 // element's innerText attribute.
 //
+///////////////////////////////////////////////////////////////////////////////
 
 
 // Function to create (if needed) and post to a status line element.

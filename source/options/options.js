@@ -1,6 +1,22 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// Code for the Thunderbird add-on Obsidian Clipper.
+//
+// ObsidianClipper is an add-on for the Thunderbird email client that lets a 
+// user clip messages to the Obsidian notetaking application. Both 
+// applications are open source and free to use, just like this add-on!
+//
+// Project hosted at https://github.com/KNHaw/ThunderbirdObsidianClipper
+//
+// Code written by Kevin Haw. http://www.KevinHaw.com
+//
+// Released under the Mozilla Public Licence. 
+// See https://github.com/KNHaw/ThunderbirdObsidianClipper/blob/main/LICENSE
 //
 // options.js - Handle Options tab for Obsidian Clipper add-on for Thunderbird.
 //
+///////////////////////////////////////////////////////////////////////////////
+
 
 /* generic error handler */
 function onError(error) {
