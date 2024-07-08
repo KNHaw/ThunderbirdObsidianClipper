@@ -64,10 +64,11 @@ var latestMsgDispTab;       // Latest tab recorded on an incoming onMessageDispl
 
 // Generic error handler
 function onError(error) {
-  console.log("popup.js: " + error);
+  console.log("background.js: " + error);
 }
 
 // Function to post an alert to the user
+// NOTE: Do not pass escaped qoutes in messageString as they can hose the executeScrpt()
 async function displayAlert(messageString) {
     const onelinecommand = 'alert(' + '"' + messageString + '");';
     return browser.tabs.executeScript(latestMsgDispTab, { code: onelinecommand, });
@@ -76,6 +77,7 @@ async function displayAlert(messageString) {
 
 // Function to post an confirmation dialog to the user.
 // Returns true if user selected OK and false on CANCEL.
+// NOTE: Do not pass escaped qoutes in messageString as they can hose the executeScrpt()
 async function displayConfirm(messageString) {
     const onelinecommand = 'confirm(' + '"' + messageString + '");';
     
@@ -88,12 +90,13 @@ async function displayConfirm(messageString) {
 
 
 // Function to display clip status
+// NOTE: Do not pass escaped qoutes in messageString as they can hose the executeScrpt()
 async function displayStatusText(messageString) {
     // First, inject script to create a DIV text element in the message content tab
     // where we can post text.
     await browser.tabs.executeScript(latestMsgDispTab, {
       file: "/statusLine/statusLine-script.js"
-    })
+    });
     
     // Post the text to the innerText of the created DIV.
     const onelinecommand = 'document.getElementById("status-line-text").innerText = ' + '"' + messageString + '";';
@@ -123,6 +126,73 @@ async function readTextSelection(tabId) {
 }
 
 
+/////////////////////////////
+// Attachments Configuration
+/////////////////////////////
+
+// Function to clip and save a message's attachments.
+// Returns a string suitable for the _MSGATTACHMENTLIST field. Either a newline and list
+// of attachments in the vault or "none" if no attachments on the message.
+// Note that attachmentFolderPath must be an absolute posotion in the vault and begin with "/"
+async function saveAttachments(messageId, attachmentFolderPath,
+    attachmentSaveEnabled) {
+    
+    var attachmentList = "";        // Returned markdown formatted list
+    var attachmentCount = 0;        // Count attachments as they're saved
+    var attachmentCountTotal = 0;   // Total count of attachments in this mail message
+    
+    // Get attachments
+    let attachments = await browser.messages.listAttachments(messageId);
+    attachmentCountTotal = attachments.length;  // Count, starting from one instead of zero
+    
+    // Process the attachments
+    if(false == attachmentSaveEnabled){
+        // No attachments. Return "none"
+        attachmentList = "none";
+    } else {
+        
+        // Step through the attachments
+        for (let att of attachments) {
+            // Get the attached file.
+            let file = await browser.messages.getAttachmentFile(messageId, att.partName);
+            let filename = file.name;
+            let fileType = file.type;
+            
+            console.log("Getting attachment " + filename + ", type " + fileType);
+            
+            let flobUrl = URL.createObjectURL(file);
+            
+            var imgId = await browser.downloads.download({
+              url: flobUrl,
+              filename: filename,
+              conflictAction: "uniquify",
+              saveAs:false
+            });
+            
+            // Check to see if the write operation worked.
+            let fileDownloadStatus = await browser.downloads.search({id:imgId});
+            // KNH TO DO - throw error on download fail.
+
+            console.log("Downloaded attachment " + fileDownloadStatus[0].filename);
+            
+            // To find the filename, take the full file path of the attachment and (if needed) convert it 
+            // to a UNIX-like path (slashes instead of backslashes). Then take the last part of it.
+            let fileNameAsWritten = fileDownloadStatus[0].filename.replaceAll(/\\/g, "/").split("/").pop();
+            
+            // Log file as saved
+            attachmentCount = attachmentCount + 1;
+            var attachmentSaveSuccessMsg = "Saved attachment file '"+ filename + "' (" + attachmentCount + " of " + attachmentCountTotal + ")";
+            console.log(attachmentSaveSuccessMsg);
+            await displayStatusText(attachmentSaveSuccessMsg);
+            
+            // Append link to attachment file list
+            attachmentList += "\n - [" + fileNameAsWritten + "](" + attachmentFolderPath + "/" + fileNameAsWritten + ")";
+            }
+    }
+    
+    // Report completed number of attachments
+    return attachmentList;
+}
 
 
 ///////////////////////////
@@ -140,7 +210,6 @@ function replaceUnicodeChar(c, defaultReplace="") {
     
     return newChar;
 }
-
 
 // Function to change characters that are illegal in Obsidian file names to something palatable
 function correctObsidianFilename(noteFileName, useUnicodeChars=true, subSpacesWithUnderscores=false, additionalDisallowedChars='', noteNameReplaceChar='-')
@@ -184,7 +253,7 @@ function buildMessageBody(msgPart)
 {
     let messageText = "";
     
-    console.log("popup.js - buildMessageBody -  msgPart.contentType=" +  msgPart.contentType);
+    console.log("background.js - buildMessageBody -  msgPart.contentType=" +  msgPart.contentType);
     
     // See if there's plaintext email content
     if (typeof msgPart.body !== 'undefined' && msgPart.contentType == "text/plain") {
@@ -259,6 +328,7 @@ function getRecipients(msg, field, yamlFormat=false)
     return messageRecipients;
 }
 
+
 // Function to actually clip the email. Pass in the saved array of parameters.
 async function clipEmail(storedParameters)
 {
@@ -271,6 +341,8 @@ async function clipEmail(storedParameters)
     let subSpacesWithUnderscores = false;
     let additionalDisallowedChars = "";
     let noteNameReplaceChar = "-";
+    let attachmentFolderPath = "";
+    let attachmentSaveEnabled = false;
     
     // Log that we're clipping the message
     await displayStatusText("ObsidianClipper: Clipping message.");
@@ -297,6 +369,8 @@ async function clipEmail(storedParameters)
         subSpacesWithUnderscores = storedParameters["subSpacesWithUnderscores"];
         additionalDisallowedChars = storedParameters["additionalDisallowedChars"]; 
         noteNameReplaceChar = storedParameters["noteNameReplaceChar"];
+        attachmentFolderPath = storedParameters["attachmentFolderPath"];
+        attachmentSaveEnabled = storedParameters["attachmentSaveEnabled"];
         
         // Correct any parameters the won't cause fatal errors when missing
         // by giving them default values.
@@ -304,6 +378,7 @@ async function clipEmail(storedParameters)
         if(undefined == subSpacesWithUnderscores) {subSpacesWithUnderscores = true;}
         if(undefined == additionalDisallowedChars) {additionalDisallowedChars = "";}
         if(undefined == noteNameReplaceChar) {noteNameReplaceChar = "-";}
+        if(undefined == attachmentFolderPath) {attachmentFolderPath = "";}
         }
     
 
@@ -358,8 +433,12 @@ async function clipEmail(storedParameters)
         messageBody = buildMessageBody(full);
     }
     
-    console.log("popup.js - clipEmail - messageBody: " + messageBody);
-
+    console.log("background.js - clipEmail - messageBody: " + messageBody);
+    
+    // Save message attachments and get a markdown list with links to them.
+    attachmentList = await saveAttachments(message.id, attachmentFolderPath, 
+        attachmentSaveEnabled);
+    
     // Build note name and content from templates and message data.
     // Use these placeholders for note and time content:
     //     Note Info: _NOTEDATE, _NOTETIME
@@ -400,6 +479,8 @@ async function clipEmail(storedParameters)
         _NOTEHOUR:String(thisMoment.getHours()).padStart(2, '0'),
         _NOTEMIN:String(thisMoment.getMinutes()).padStart(2, '0'),
         _NOTESEC:String(thisMoment.getSeconds()).padStart(2, '0'),
+        
+        _MSGATTACHMENTLIST:attachmentList,
     };
     
     // Build a regular expression that will trip on each key in templateMap
@@ -416,8 +497,8 @@ async function clipEmail(storedParameters)
     // Now, replace characters that are not supported in Obsidian filenames.
     noteSubject = correctObsidianFilename(noteSubject, useUnicodeInFilenames, subSpacesWithUnderscores, additionalDisallowedChars, noteNameReplaceChar);
 
-    console.log("popup.js: Note subject: \"" + noteSubject + "\"");
-    console.log("popup.js: Note content:\n" + noteContent);
+    console.log("background.js: Note subject: \"" + noteSubject + "\"");
+    console.log("background.js: Note content:\n" + noteContent);
     
     // Build the Obsidian URI, encoding characters like spaces or punctuation as required.
     // Start with the vault name.
@@ -436,7 +517,7 @@ async function clipEmail(storedParameters)
     
     // Finally, append the actual email content as the note content.
     obsidianUri = obsidianUri + "&content=" + encodeURIComponent(noteContent);
-    console.log("popup.js: obsidianUri: " + obsidianUri);
+    console.log("background.js: obsidianUri: " + obsidianUri);
     
     // Log status
     await displayStatusText("ObsidianClipper: Sending data to Obsidian application.");

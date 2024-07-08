@@ -27,8 +27,11 @@ textarea {
   height:200px;
 }
 
-
-
 input[type=text]:focus {
   border: 2px solid #555;
+}
+
+body {
+    
+  font-size:16px;
 }

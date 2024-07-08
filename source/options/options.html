@@ -30,7 +30,7 @@
   <p>This optional parameter allows the user to specifiy a location within the
   vault to place clipped emails. Folders name are separated by slashes, so
   setting this parameter to 'business/important emails" would place
-  your clipped eamils into the 'important emails' folder inside the vault's
+  your clipped emails into the 'important emails' folder inside the vault's
   top level 'business' folder.
   <p>If this parameter is left blank, new notes in Obsidian will appear
   in the location indicated in 'Settings->Files & Links->Default location for new notes'.
@@ -43,6 +43,64 @@
     <button id="default-noteFolderPath">Restore Default</button>
   </form>
 
+
+
+
+  <h1>Message Attachments (Optional Feature)</h1>
+  <p>This optional feature allows saving files attached to an email message Obsidian.
+  <p>To use this feature, set the options below and then perform the steps described in 
+  "Attachment Permissions."
+  
+  <h2>Attachment Options</h2>
+  <p>Enable saving email attachments with the option below.
+  
+  <form> 
+    <label><b>Enable saving of email attachments</b></label>
+    <input type="checkbox" id="attachmentSaveEnabled">
+    <br>
+    <button id="submit-attachmentSaveEnabled">Save</button>
+    <button id="default-attachmentSaveEnabled">Restore Default</button>
+  </form>  
+  
+  
+  <h2>Attachment Save Folder</h2>
+  This parameter tells ObsidianClipper the location within the
+  vault where you will place clipped emails, relative to the Obsidian vault's root directory.
+  For example, setting this parameter to 'business/important emails/_resources' would place
+  your clipped emails into a '_resources' folder beneath 'business/important emails'
+  inside your vault. In this example, the location is beneath the Note Folder Path described above,
+  but you can place the attachment folder anywhere in your vault you wish.
+  <p>Links to the files will appear in list form in your note when you use the _MSGATTACHMENTLIST_
+  field in the Note Content Template as described below.
+  
+  <form>
+    <label><b>Store attachments for clipped emails in this folder in the Obsidian vault</b></label>
+    <input type="text" id="attachmentFolderPath">
+    <button id="submit-attachmentFolderPath">Save</button>
+    <button id="default-attachmentFolderPath">Restore Default</button>
+  </form>
+  
+  <h2>Attachment Permissions</h2>
+  In order to save the attachment files from emails, you will need to set the default save location
+  for the Thunderbird application. Do that by following the steps below.
+  <ul>
+    <li>In the main Thunderbird window, click on the 'Tools' window and then the 'Settings' option. This will open the Settings Tab.</li>
+    <li>From the Settings Tab, make sure the 'General' selector is highlighted on the left side. Then scroll down to the 
+        'Files & Attachments' section. You could also type 'Files & Settings' into the search box at the right top of the Settings tab
+        to find this setting.</li>
+    <li>Click on the 'Save Files To' option and then click on the 'Browse' button.</li>
+    <li>Navigate to the folder for saving attachments recorded above. In the example above, this would be the 'business/important emails/_resources' folder.</li>
+    <li>Alternately, if you regularly save attachment files to other locations in the course of your normal workflow and do not want those
+        other files saved into your Obsidian vault, you could instead click the 
+        'Always ask me where to save files' option. In doing so, though, you will need to manually navigate to the Attachment Save Folder
+        whenever clipping an email with any attachments.</li>
+  </ul>
+  Note that it is important to correctly set both Thunderbird's file save location and the path specified in the 'Attachment Save Folder'
+  section above. Incorrectly setting them will cause the attachment links in the _MSGATTACHMENTLIST_ field to point at the
+  wrong location.
+  <p>For more details and a detailed guide to setting up attachmetns for ObsidianClipper, please visit the 
+    <a href="https://github.com/KNHaw/ThunderbirdObsidianClipper/blob/main/docs/user-guide.md">online User Guide</a>.
+  
   <hr>
   <h1>Note Filename and Content Templates</h1>
   <p>Indicate how a clipped email note's filename should appear and how the actual 
@@ -54,7 +112,7 @@
         <li><b>_NOTEDATE</b> - The current date. Fields from the note date are inserted with these other symbols:</li>
             <ul><li><b>_NOTEYEAR</b> for a 4 digit year, <b>_NOTEMONTH</b> for a 01-12 month, or <b>_NOTEDAY</b> for a 00-31 day of the month.</li></ul>
         <li><b>_NOTETIME</b> - The current time. Fields from the note time are inserted with these symbols:</li>
-            <ul><li><b>_NOTEHOUR</b> for the 00-23 hour, <b>_NOTEMIN</b> for a 00-59 minute, or <b>_NOTESEC</b> for a 00-59 second.</li></ul>
+            <ul><li><b>_NOtheOUR</b> for the 00-23 hour, <b>_NOTEMIN</b> for a 00-59 minute, or <b>_NOTESEC</b> for a 00-59 second.</li></ul>
         </ul>
   </li>
   <li>Message Information:
@@ -73,6 +131,7 @@
             </ul>
         <li><b>_MSGAUTHOR</b> - The message author.</li>
         <li><b>_MSGTAGSLIST</b> - Include <a href="https://support.mozilla.org/en-US/kb/message-tags">Email catagory tags</a> in a hashtag spaced list. See below for color coding options.</li>
+        <li><b> </b> - A markdown list of links to message attachments saved to Obsidian. If no message attachments were saved, returns the string "none."</li>
         <li><b>_MSGIDURI</b> - A URI that can be clicked to open the message.</li>
             <ul><li>For example, '[click here to open](_MSGURI)' will create a link in your note that when clicked will open the email in your client.</li></ul>
         <li><b>_MSGCONTENT</b> - The actual text content of the message.</li>

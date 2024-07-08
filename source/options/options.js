@@ -27,7 +27,9 @@ function onError(error) {
 ///////////////////////////////////////////////////////////////
 // DEBUG: Start with a clean slate when testing add-on...
 // console.log("DEBUG: Clearing local store values for testing...");
+//
 // browser.storage.local.clear();
+//
 ///////////////////////////////////////////////////////////////
 
 // Set up array of default parameters for each HTML field.
@@ -35,6 +37,8 @@ function onError(error) {
 var defaultParameters = [];
 defaultParameters["obsidianVaultName"] = "_myNotes";
 defaultParameters["noteFolderPath"] = "ClippedEmails";
+defaultParameters["attachmentFolderPath"] = "ClippedEmails/_resources";
+defaultParameters["attachmentSaveEnabled"] = false;
 defaultParameters["noteFilenameTemplate"] = "Email (_MSGDATE) : _MSGSUBJECT";
 defaultParameters["noteContentTemplate"] = 
     "Tagged: #email _MSGTAGSLIST\n" +
@@ -45,9 +49,11 @@ defaultParameters["noteContentTemplate"] =
     "Recipients: _MSGRECIPENTS\n" +
     "CC: _MSGCC\n" +
     "BCC: _MSGBCC\n" +
+    "Attachments: _MSGATTACHMENTLIST\n" +
     "[Click to open message in email client](_MSGIDURI)\n\n" +
     "---\n\n" +
     "_MSGCONTENT";
+    
 defaultParameters["useColorCodedMsgTags"] = true;
 defaultParameters["unicodeCharSub"] = true;
 defaultParameters["subSpacesWithUnderscores"] = false;
@@ -62,26 +68,34 @@ function parameterStore(key, value) {
       }, onError);
 }
 
-// Store the contents of an options field to local storage
+// Store the contents of an options field to local storage.
+// The parameter name is the id field of the HTML <input>.
+//
+// For radio buttons, call storeOption() on all the component buttons so 
+// all the set and unset buttons get processed.
 function storeOption(id) {
-    fieldContent = "";
-    
     // Read the options field
     var elem = document.getElementById(id);
+    
+    console.log("storeOption: id=" + id + " elem.type = " + elem.type);
+    
+    // Did we find option by ID?
     if(typeof elem !== 'undefined' && elem !== null) {
         
         if(elem.type == "checkbox") {
             // Unlike text fields, read boolean to see if checkboxes are set or cleared
-            fieldContent = elem.checked;
+            parameterStore(id, elem.checked);
+        } else if(elem.type == "radio") {
+            // Store parameter for this one radio button option.
+            parameterStore(id, elem.checked);
+            
         } else {
             // Read field
-            fieldContent = elem.value;
+            parameterStore(id, elem.value);
         }
-        
-        // Store away field data
-        parameterStore(id, fieldContent);
     }
     else {
+
         console.log("storeOption("+id+") ERROR: typeof elem == " + typeof elem + "elem == " + elem);
     }
 }
@@ -127,6 +141,9 @@ function loadOptionsFields(storedParameters)
         if(typeof elem !== 'undefined' && elem !== null) {
             if(elem.type == "checkbox") {
                 // Unlike text fields, use a boolean to set/clear checkboxes
+                elem.checked = fieldContent;
+            } else if(elem.type == "radio") {
+                // Record the check
                 elem.checked = fieldContent;
             } else {
                 // Set field to the indicated string
@@ -188,23 +205,26 @@ async function setupColorCodedTagsCssField()
         // Add the line of CSS
         cssBlock = cssBlock + tagCss;
     }
-
-
-
     elem.value = cssBlock;
-    
 }
 
 ///////////////////////
 // Main execution path
 ///////////////////////
 
-// Set up event listeners for buttons.
+// Set up event listeners for option buttons.
 document.getElementById('submit-obsidianVaultName').onclick = function() {storeOption("obsidianVaultName"); };
 document.getElementById('default-obsidianVaultName').onclick = function() {storeDefault("obsidianVaultName"); };
 
 document.getElementById('submit-noteFolderPath').onclick = function() {storeOption("noteFolderPath"); };
 document.getElementById('default-noteFolderPath').onclick = function() {storeDefault("noteFolderPath"); };
+
+// As a radio button array, attachment save mode submits/defaults all three buttons at once.
+document.getElementById('submit-attachmentSaveEnabled').onclick = function() {storeOption("attachmentSaveEnabled"); };    
+document.getElementById('default-attachmentSaveEnabled').onclick = function() {storeDefault("attachmentSaveEnabled"); };
+
+document.getElementById('submit-attachmentFolderPath').onclick = function() {storeOption("attachmentFolderPath"); };
+document.getElementById('default-attachmentFolderPath').onclick = function() {storeDefault("attachmentFolderPath"); };
 
 document.getElementById('submit-noteFilenameTemplate').onclick = function() {storeOption("noteFilenameTemplate"); };
 document.getElementById('default-noteFilenameTemplate').onclick = function() {storeDefault("noteFilenameTemplate"); };
