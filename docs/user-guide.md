@@ -52,6 +52,18 @@ If you are unsure of your vault name or have not set up a vault on your local ma
   vault to place clipped emails. If this parameter is left blank, new notes in Obsidian will appear
   in the location indicated in 'Settings->Files & Links->Default location for new notes'.
   By default, this is usually the most recent folder in use in the Obsidian app.
+- *Message Attachments (Optional Feature)* - To save email attachments with clipped emails, do the following:
+    - Set the checkbox labeled "Enable saving of email attachments" and save the setting. Because the configuration steps
+    below need to be run before attachments can be saved, ObsidianClipper requires this manual step and will not
+    by default save attachments.
+    - Choose a location inside your Obsidian vault where the attachment files should go and enter the path to it 
+    in the "Attachment Save Folder" field. This should be relative to the Obsidian vault's root directory.
+    For example, setting this parameter to 'business/important emails/_resources' would place
+    your clipped emails into a '_resources' folder beneath 'business/important emails'
+    inside your vault. This value is what sets the path to attachments in the _MSGATTACHMENTLIST template, below.
+    If not properly set your clipped email will not point to the clipped attachments.
+    - ObsidianClipper can't change the default location to save files like attachments, so 
+    read the section "Attachment Permissions" carefully to set the path for saving files. 
 - *Note Filename and Content Templates* - These two fields allow a user to specify how notes clipped from emails are named and how 
   data is saved in Obsidian by use of placeholders in the text. See the Options tab of the add-on for a brief rundown of the
   different placeholder fields or the [Placeholders](#Placeholders) section of this guide for the definitive list of
@@ -67,7 +79,7 @@ These placeholders and what is substituted in the clipped note are detailed belo
 - *_NOTEDATE* - The current date. Fields from the note date are inserted with these other symbols:
     - *_NOTEYEAR* for a 4 digit year, *_NOTEMONTH* for a 01-12 month, or *_NOTEDAY* for a 00-31 day of the month.
 - *_NOTETIME* - The current time. Fields from the note time are inserted with these symbols:
-    - *_NOtheOUR* for the 00-23 hour, *_NOTEMIN* for a 00-59 minute, or *_NOTESEC* for a 00-59 second.
+    - *_NOTEHOUR* for the 00-23 hour, *_NOTEMIN* for a 00-59 minute, or *_NOTESEC* for a 00-59 second.
 - *_MSGDATE* - The message date. Fields from the message date are inserted with these other symbols:
     - *_MSGYEAR* for a 4 digit year, *_MSGMONTH* for a 01-12 month, or *_MSGDAY* for a 00-31 day of the month.
 - *_MSGTIME* - The message time. Fields from the message time are inserted with these symbols:
@@ -80,6 +92,7 @@ These placeholders and what is substituted in the clipped note are detailed belo
         See the [Obsidian Frontmatter Properties](#Obsidian-Frontmatter-Properties) section below for an example.
 - *_MSGAUTHOR* - The message author.
 - *_MSGTAGSLIST* - Include [Email catagory tags](https://support.mozilla.org/en-US/kb/message-tags) in a hashtag spaced list. See below for color coding options.
+- *_MSGATTACHMENTLIST* - A markdown list of links to message attachments saved to Obsidian. If no message attachments were saved, returns the string "none."
 - *_MSGIDURI* - A URI that can be clicked to open the message.
     - For example, the text \"`[click here to open](_MSGURI)`\" will create a link in your note that when clicked will open the email in your client.
 - *_MSGCONTENT* - The actual text content of the message.
@@ -173,19 +186,18 @@ If you clip an email and see a "Vault Not Found" error, the *Obsidian Vault Name
 vault name or have not set up a vault on your local machine yet, go to the [Obsidian Help](https://help.obsidian.md) page for details.
 
 ### Unable to Save Email Attachments
-Currently, the add-on does not support saving mail attachments. However, multiple users have requested this feature and an [issue 
-on GitHub](https://github.com/KNHaw/ThunderbirdObsidianClipper/issues/9) is being used to track progress.
+The attachment clipping feature was added in ObsidianClipper version v4.1 in July of 2024. It is unclear what, if any
+problems that users might encounter using this feature. If you have a problem, please 
+[file an issue on GitHub](https://github.com/KNHaw/ThunderbirdObsidianClipper/issues) so the development team can assist you and 
+update this User Guide to refelct the solutions that were found.
 
-The current plan is to support HTML email attachments at some point in April 2024. Please watch the issue link above for status.
-
-### Blank Note Content
+### HTML Mial and Blank Note Content
 First, there is currently a [limitation](https://github.com/KNHaw/ThunderbirdObsidianClipper/issues/13) that HTML mail 
 (those with pictures or links or text formatting like bold or italic) may not clip correctly. If your selected emails 
 are HMTL, this could be happening. To rule this problem out, create a simple one line test email with plain text ("Hello, world!"), 
 send it to yourself, and see if it clips correctly.
 
-The current plan is to support HTML email at some point in the first half of 2024. Please watch the issue link above for status.
-
+The current plan is to support HTML email at some point in the second half of 2024. Please watch the issue link above for status.
 
 ### Note Content Corrupted or Missing
 If you do not see the expected content in a note that has been clipped, look at the *Note Content Template* field in the options menu
