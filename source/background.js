@@ -63,8 +63,13 @@ var latestMsgDispTab;       // Latest tab recorded on an incoming onMessageDispl
 ///////////////////////////
 
 // Generic error handler
-function onError(error) {
-  console.log("background.js: " + error);
+function onError(error, context="") {
+    if("" == context) {
+        console.log("background.js: " + error);
+    } else {
+        console.log("background.js: " + error + " (" + context + ")");
+    }
+        
 }
 
 // Function to post an alert to the user
@@ -79,50 +84,75 @@ async function displayAlert(messageString) {
 // Returns true if user selected OK and false on CANCEL.
 // NOTE: Do not pass escaped qoutes in messageString as they can hose the executeScrpt()
 async function displayConfirm(messageString) {
+    var retval ="";
     const onelinecommand = 'confirm(' + '"' + messageString + '");';
     
-    // Run the confirmation dialog.
-    retval = await browser.tabs.executeScript(latestMsgDispTab, { code: onelinecommand, });
+    // Catch any errors thrown by executeScript()
+    try {    
+        // Run the confirmation dialog.
+        retArray = await browser.tabs.executeScript(latestMsgDispTab, { code: onelinecommand, });
+        retval = retArray[0];
+    } catch(e) { onError(e, ("displayConfirm - " + messageString)); }
     
     // Return the response
-    return retval[0];
+    return retval;
 }
 
 
 // Function to display clip status
 // NOTE: Do not pass escaped qoutes in messageString as they can hose the executeScrpt()
 async function displayStatusText(messageString) {
-    // First, inject script to create a DIV text element in the message content tab
-    // where we can post text.
-    await browser.tabs.executeScript(latestMsgDispTab, {
-      file: "/statusLine/statusLine-script.js"
-    });
     
-    // Post the text to the innerText of the created DIV.
-    const onelinecommand = 'document.getElementById("status-line-text").innerText = ' + '"' + messageString + '";';
-    browser.tabs.executeScript(latestMsgDispTab, { code: onelinecommand, });
-    
-    // Schedule status line for removal after a given time.
-    setTimeout(deleteStatusLine, STATUSLINE_PERSIST_MS, latestMsgDispTab);
+    // Catch any errors thrown by executeScript()
+    try {    
+        // First, inject script to create a DIV text element in the message content tab
+        // where we can post text.
+        await browser.tabs.executeScript(latestMsgDispTab, {
+          file: "/statusLine/statusLine-script.js"
+        });
+        
+        // Post the text to the innerText of the created DIV.
+        const onelinecommand = 'document.getElementById("status-line-text").innerText = ' + '"' + messageString + '";';
+            await browser.tabs.executeScript(latestMsgDispTab, { code: onelinecommand, });
+        
+        // Schedule status line for removal after a given time.
+        setTimeout(deleteStatusLine, STATUSLINE_PERSIST_MS, latestMsgDispTab);
+    } catch(e) { onError(e, ("displayStatusText - " + messageString)); }
+
 }
 
 // Function to remove the status message after clip completion
 function deleteStatusLine(tabId) {
-    // Delete the status line DIV we have used for posting updates.
-    //const onelinecommand = 'document.getElementById("status-line").remove();';
-    const onelinecommand = 'var el = document.getElementById("status-line"); if(el != undefined) {el.remove();}';
-    browser.tabs.executeScript(tabId, { code: onelinecommand, });
+    
+    // Catch any errors thrown by executeScript()
+    try {    
+        // Delete the status line DIV we have used for posting updates.
+        //const onelinecommand = 'document.getElementById("status-line").remove();';
+        const onelinecommand = 'var el = document.getElementById("status-line"); if(el != undefined) {el.remove();}';
+        browser.tabs.executeScript(tabId, { code: onelinecommand, });
+    } catch(e) { onError(e, ("deleteStatusLine - " + tabId)); }
+
 }
 
 // Function to read any selected text in an email in a given tab. Returns string of that text
 // or empty string 
 async function readTextSelection(tabId) {
-    const onelinecommand = 'window.getSelection().toString();';
-    var result = await browser.tabs.executeScript(tabId, { code: onelinecommand, });
     
-    // Return any text selected.
-    console.log("DEBUG: readTextSelection returns \"" + result[0] + "\"");
-    return(result[0]);
+    var retVal = "";
+    
+    // Catch any errors thrown by executeScript()
+    try {    
+        const onelinecommand = 'window.getSelection().toString();';
+        var result = await browser.tabs.executeScript(tabId, { code: onelinecommand, });
+        
+        // Return any text selected.
+        retVal = result[0];
+        console.log("DEBUG: readTextSelection returns \"" + retVal + "\"");
+        //return(result[0]);
+    } catch(e) { onError(e, ("readTextSelection - " + tabId)); }
+    
+    return retVal;
+    
 }
 
 
@@ -171,7 +201,7 @@ async function saveAttachments(messageId, attachmentFolderPath,
             
             // Check to see if the write operation worked.
             let fileDownloadStatus = await browser.downloads.search({id:imgId});
-            // KNH TO DO - throw error on download fail.
+            // TODO - throw error on download fail.
 
             console.log("Downloaded attachment " + fileDownloadStatus[0].filename);
             
@@ -381,13 +411,12 @@ async function clipEmail(storedParameters)
         if(undefined == attachmentFolderPath) {attachmentFolderPath = "";}
         }
     
-
     // Get the message currently displayed in the active tab, using the
     // messageDisplay API. Note: This needs the messagesRead permission.
     // The returned message is a MessageHeader object with the most relevant
     // information.
     let message = await messenger.messageDisplay.getDisplayedMessage(tabs[0].id);
-
+    
     // Request the full message to access its full set of headers.
     let full = await messenger.messages.getFull(message.id);
 
@@ -434,7 +463,7 @@ async function clipEmail(storedParameters)
     }
     
     console.log("background.js - clipEmail - messageBody: " + messageBody);
-    
+
     // Save message attachments and get a markdown list with links to them.
     attachmentList = await saveAttachments(message.id, attachmentFolderPath, 
         attachmentSaveEnabled);
@@ -629,5 +658,5 @@ browser.messageDisplay.onMessageDisplayed.addListener(async (tab, message) => {
     
     // To display text on the tab, call displayStatusText() to set text in the DIV
 });
-
   
+
