@@ -191,8 +191,8 @@ problems that users might encounter using this feature. If you have a problem, p
 [file an issue on GitHub](https://github.com/KNHaw/ThunderbirdObsidianClipper/issues) so the development team can assist you and 
 update this User Guide to refelct the solutions that were found.
 
-### HTML Mial and Blank Note Content
-First, there is currently a [limitation](https://github.com/KNHaw/ThunderbirdObsidianClipper/issues/13) that HTML mail 
+### HTML Mail and Blank Note Content
+There is currently a [limitation](https://github.com/KNHaw/ThunderbirdObsidianClipper/issues/13) that HTML mail 
 (those with pictures or links or text formatting like bold or italic) may not clip correctly. If your selected emails 
 are HMTL, this could be happening. To rule this problem out, create a simple one line test email with plain text ("Hello, world!"), 
 send it to yourself, and see if it clips correctly.
