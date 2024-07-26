@@ -59,6 +59,8 @@ defaultParameters["unicodeCharSub"] = true;
 defaultParameters["subSpacesWithUnderscores"] = false;
 defaultParameters["additionalDisallowedChars"] = "[]#^";
 defaultParameters["noteNameReplaceChar"] = "-";
+defaultParameters["maxEmailSize"] = "Disabled";
+
 
 // Store the data to local storage with the given key
 function parameterStore(key, value) {
@@ -243,6 +245,9 @@ document.getElementById('default-additionalDisallowedChars').onclick = function(
 
 document.getElementById('submit-noteNameReplaceChar').onclick = function() {storeOption("noteNameReplaceChar"); };
 document.getElementById('default-noteNameReplaceChar').onclick = function() {storeDefault("noteNameReplaceChar"); };
+
+document.getElementById('submit-maxEmailSize').onclick = function() {storeOption("maxEmailSize"); };
+document.getElementById('default-maxEmailSize').onclick = function() {storeDefault("maxEmailSize"); };
 
 // Get the stored parameters and pass them to a function to populate fields.
 browser.storage.local.get(null).then(loadOptionsFields, onError);

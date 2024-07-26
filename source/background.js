@@ -279,7 +279,7 @@ function correctObsidianFilename(noteFileName, useUnicodeChars=true, subSpacesWi
 
 // Function to extract text from a message object (specifically, a messagePart object),
 // then recurse through any part[] arrays beneath that for more text.
-function buildMessageBody(msgPart)
+function buildMessageBody(msgPart, maxEmailSize)
 {
     let messageText = "";
     
@@ -298,6 +298,13 @@ function buildMessageBody(msgPart)
             messageText = messageText + buildMessageBody(msgPart.parts[i]);
         }
     }
+    
+    // Do we need to crop the email text?    
+    if (messageText.length > maxEmailSize) {
+        messageText = messageText.substr(1, maxEmailSize);
+        messageText = messageText + "\n\n\n ========= Email cropped after " + maxEmailSize + " bytes ========= \n";
+    }
+    
     return messageText;
 }
 
@@ -373,6 +380,7 @@ async function clipEmail(storedParameters)
     let noteNameReplaceChar = "-";
     let attachmentFolderPath = "";
     let attachmentSaveEnabled = false;
+    let maxEmailSize = Number.MAX_SAFE_INTEGER;
     
     // Log that we're clipping the message
     await displayStatusText("ObsidianClipper: Clipping message.");
@@ -390,25 +398,33 @@ async function clipEmail(storedParameters)
                 "Look in Settings->Add-ons Manager->Obsidian Clipper->Options tab");
             return;
         } else {
-        // Load parameters from storage
-        obsidianVaultName = storedParameters["obsidianVaultName"];
-        noteFolderPath = storedParameters["noteFolderPath"];
-        useUnicodeInFilenames = storedParameters["unicodeCharSub"];
-        noteTitleTemplate = storedParameters["noteFilenameTemplate"];
-        noteTemplate = storedParameters["noteContentTemplate"];
-        subSpacesWithUnderscores = storedParameters["subSpacesWithUnderscores"];
-        additionalDisallowedChars = storedParameters["additionalDisallowedChars"]; 
-        noteNameReplaceChar = storedParameters["noteNameReplaceChar"];
-        attachmentFolderPath = storedParameters["attachmentFolderPath"];
-        attachmentSaveEnabled = storedParameters["attachmentSaveEnabled"];
-        
-        // Correct any parameters the won't cause fatal errors when missing
-        // by giving them default values.
-        if(undefined == useUnicodeInFilenames) {useUnicodeInFilenames = true;}
-        if(undefined == subSpacesWithUnderscores) {subSpacesWithUnderscores = true;}
-        if(undefined == additionalDisallowedChars) {additionalDisallowedChars = "";}
-        if(undefined == noteNameReplaceChar) {noteNameReplaceChar = "-";}
-        if(undefined == attachmentFolderPath) {attachmentFolderPath = "";}
+            // Load parameters from storage
+            obsidianVaultName = storedParameters["obsidianVaultName"];
+            noteFolderPath = storedParameters["noteFolderPath"];
+            useUnicodeInFilenames = storedParameters["unicodeCharSub"];
+            noteTitleTemplate = storedParameters["noteFilenameTemplate"];
+            noteTemplate = storedParameters["noteContentTemplate"];
+            subSpacesWithUnderscores = storedParameters["subSpacesWithUnderscores"];
+            additionalDisallowedChars = storedParameters["additionalDisallowedChars"]; 
+            noteNameReplaceChar = storedParameters["noteNameReplaceChar"];
+            attachmentFolderPath = storedParameters["attachmentFolderPath"];
+            attachmentSaveEnabled = storedParameters["attachmentSaveEnabled"];
+            maxEmailSize = storedParameters["maxEmailSize"];
+            
+            // Correct any parameters the won't cause fatal errors when missing
+            // by giving them default values.
+            if(undefined == useUnicodeInFilenames) {useUnicodeInFilenames = true;}
+            if(undefined == subSpacesWithUnderscores) {subSpacesWithUnderscores = true;}
+            if(undefined == additionalDisallowedChars) {additionalDisallowedChars = "";}
+            if(undefined == noteNameReplaceChar) {noteNameReplaceChar = "-";}
+            if(undefined == attachmentFolderPath) {attachmentFolderPath = "";}
+            
+            // Correct any parameters requiring additional processing
+            if((undefined == maxEmailSize) || (NaN == parseInt(maxEmailSize))){            
+                maxEmailSize = Number.MAX_SAFE_INTEGER;     // Set no limit
+            } else {
+                maxEmailSize = parseInt(maxEmailSize);      // Set user defined limit
+            }
         }
     
     // Get the message currently displayed in the active tab, using the
@@ -459,7 +475,7 @@ async function clipEmail(storedParameters)
     // Was anything selected?
     if(messageBody == "") {
         // No text was selected - get entire message text.
-        messageBody = buildMessageBody(full);
+        messageBody = buildMessageBody(full, maxEmailSize);
     }
     
     console.log("background.js - clipEmail - messageBody: " + messageBody);
@@ -553,11 +569,10 @@ async function clipEmail(storedParameters)
     
     // Create new note
     // Supposedly, there's a defacto 200 char limit to URIs (https://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers)
-    // However, testing fof12K+ emails is fine.
+    // However, testing of emails of near 20K found a URI max size of 35717 bytes.
     // TODO: If there's problems with long notes, add a loop with APPEND for note content to handle bigger emails.
     let openedWindow;
     openedWindow = window.open(obsidianUri, "_self");
-    
     
     // Log status
     await displayStatusText("ObsidianClipper: Message clipped.");
