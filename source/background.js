@@ -220,6 +220,11 @@ async function saveAttachments(messageId, attachmentFolderPath,
             }
     }
     
+    // If no attachments clipped, correct list to read "none"
+    if("" == attachmentList) {
+        attachmentList = "none";
+    }
+    
     // Report completed number of attachments
     return attachmentList;
 }
