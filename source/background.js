@@ -24,7 +24,7 @@ console.log("DEBUG - background.js is running!!!");
 const STATUSLINE_PERSIST_MS = 10000;    // Delete status line messgaes after indicated time
 
 // Global, persistant variables.
-var latestMsgDispTab;       // Latest tab recorded on an incoming onMessageDisplay event. Used for later reference.
+var latestMsgDispTab = 1;       // Latest tab recorded on an incoming onMessageDisplay event. Used for later reference.
 
 // Table used to substitute reserved characters with Unicode equivilents
     const unicodeSubs = {
@@ -73,18 +73,29 @@ function onError(error, context="") {
 }
 
 // Function to post an alert to the user
-// NOTE: Do not pass escaped qoutes in messageString as they can hose the executeScrpt()
+// NOTE: Do not pass escaped quotes in messageString as they can hose the executeScrpt()
 async function displayAlert(messageString) {
-    const onelinecommand = 'alert(' + '"' + messageString + '");';
-    return browser.tabs.executeScript(latestMsgDispTab, { code: onelinecommand, });
+
+    let retVal = "";
+    console.log("displaying alert \"" + messageString + "\" in tab " + latestMsgDispTab);
+    
+    // Catch any errors thrown by executeScript()
+    try {    
+      const onelinecommand = 'alert(' + '"' + messageString + '");';
+      retVal = await browser.tabs.executeScript(latestMsgDispTab, { code: onelinecommand, });
+    } catch(e) { onError(e, ("displayAlert - " + messageString)); }
+    
+    return retVal;
 }
 
 
 // Function to post an confirmation dialog to the user.
 // Returns true if user selected OK and false on CANCEL.
-// NOTE: Do not pass escaped qoutes in messageString as they can hose the executeScrpt()
+// NOTE: Do not pass escaped quotes in messageString as they can hose the executeScrpt()
 async function displayConfirm(messageString) {
     var retval ="";
+    
+    console.log("displaying confirm dialog \"" + messageString + "\" in tab " + latestMsgDispTab);
     const onelinecommand = 'confirm(' + '"' + messageString + '");';
     
     // Catch any errors thrown by executeScript()
@@ -100,8 +111,9 @@ async function displayConfirm(messageString) {
 
 
 // Function to display clip status
-// NOTE: Do not pass escaped qoutes in messageString as they can hose the executeScrpt()
+// NOTE: Do not pass escaped quotes in messageString as they can hose the executeScrpt()
 async function displayStatusText(messageString) {
+    console.log("displaying status text \"" + messageString + "\" in tab " + latestMsgDispTab);
     
     // Catch any errors thrown by executeScript()
     try {    
@@ -599,9 +611,14 @@ const doHandleCommand = async (message, sender) => {
 
     const messageHeader = await browser.messageDisplay.getDisplayedMessage(tabId);
     
-    // Check for known commands.
+    // Record tab for later reference
+    latestMsgDispTab = tabId;
+    
+    // Get an incoming message.
     let thisCommand = command.toLocaleLowerCase();
-    console.log("Command '"+thisCommand+"' received from tab "+tabId)
+    console.log("Command '"+thisCommand+"' received from tab "+tabId);
+    
+    // Act on the command
     switch (thisCommand) {
         // Button requests that an email be clipped.
         // Reply with clipstatus and eventually clipdone
