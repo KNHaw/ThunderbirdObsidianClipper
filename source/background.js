@@ -25,6 +25,8 @@ const STATUSLINE_PERSIST_MS = 10000;    // Delete status line messgaes after ind
 
 // Global, persistant variables.
 var latestMsgDispTab = 1;       // Latest tab recorded on an incoming onMessageDisplay event. Used for later reference.
+var plainTextMessageBody = "";  // Plain text of clipped message body
+var htmlMessageBody = "";       // HTML of clipped message body translated to markdown 
 
 // Table used to substitute reserved characters with Unicode equivilents
     const unicodeSubs = {
@@ -175,9 +177,9 @@ async function readTextSelection(tabId) {
 // Function to clip and save a message's attachments.
 // Returns a string suitable for the _MSGATTACHMENTLIST field. Either a newline and list
 // of attachments in the vault or "none" if no attachments on the message.
-// Note that attachmentFolderPath must be an absolute posotion in the vault and begin with "/"
+// Note that attachmentFolderPath must be an absolute position in the vault and begin with "/"
 async function saveAttachments(messageId, attachmentFolderPath,
-    attachmentSaveEnabled) {
+    attachmentSaveEnabled, contentIdToFilenameMap) {
     
     var attachmentList = "";        // Returned markdown formatted list
     var attachmentCount = 0;        // Count attachments as they're saved
@@ -199,6 +201,7 @@ async function saveAttachments(messageId, attachmentFolderPath,
             let file = await browser.messages.getAttachmentFile(messageId, att.partName);
             let filename = file.name;
             let fileType = file.type;
+            let contentId = att.contentId;  // Optional field - be sure to verify it exists before use
             
             console.log("Getting attachment " + filename + ", type " + fileType);
             
@@ -229,6 +232,12 @@ async function saveAttachments(messageId, attachmentFolderPath,
             
             // Append link to attachment file list
             attachmentList += "\n - [" + fileNameAsWritten + "](" + attachmentFolderPath + "/" + fileNameAsWritten + ")";
+            
+            // If the content ID field is used, map the content ID to the file path
+            if(contentId) {
+                contentIdToFilenameMap[contentId] = attachmentFolderPath + "/" + fileNameAsWritten;
+                }
+            
             }
     }
     
@@ -270,7 +279,7 @@ function correctObsidianFilename(noteFileName, useUnicodeChars=true, subSpacesWi
     let searchString = '|\\\\/"<>*:?';
     
     // Add the user provided list of reserved characters. First remove backslashes, which cause chaos and are 
-    // already handled above. Then escape every character in case something has special meaninging in regular expression syntax.
+    // already handled above. Then escape every character in case something has special meaning in regular expression syntax.
     additionalDisallowedChars.replaceAll(/\\/g, '');        // Remove backslashes
     additionalDisallowedChars.split('').forEach( c => {     // Add escaped chars to list
         searchString = searchString + '\\' + c;
@@ -294,17 +303,320 @@ function correctObsidianFilename(noteFileName, useUnicodeChars=true, subSpacesWi
     return noteFileName;
 }
 
+// KNH Test - try stripping HTML
+
+
+
+// Function for conversion HTML to markdown text.
+function htmlToMarkdown(html, contentIdToFilenameMap) {
+    var text = html;        // Inputed text
+    var workingText = "";   // Working area for text processing
+    var currPos = 0;        // Positon in TEXT bring processed - used sporadically
+    
+
+    console.log("------------------------------------------------");
+    console.log("KNH kludge - HTML content:");
+    console.log(text);    
+    
+    
+    // Discard tags and uneeded formatting.
+    text = text.replaceAll(/^\s+/gim, "");  // Remove all leading whitespace - the "m" allows start-of-line match
+    text = text.replace(/\n/gi, ""); // Remove all CRs
+    text = text.replace(/<style([\s\S]*?)<\/style>/gi, "");  // Remove style and script contents
+    text = text.replace(/<script([\s\S]*?)<\/script>/gi, "");
+    
+    // Handle links
+    text = text.replace(/<a.*?href="(.*?)[\?\"].*?>(.*?)<\/a.*?>/gi, "[$2]($1)");
+    
+    // Some tags are treated as extra lines
+    text = text.replace(/<div>/gi, "\n\n");
+    text = text.replace(/<p>/gi, "\n\n");
+    text = text.replace(/<br\s*[\/]?>/gi, "\n");
+    
+    // Discard end tags for previous deleted start tags
+    text = text.replace(/<\/div>/gi, "");
+    text = text.replace(/<\/p>/gi, "");
+    text = text.replace(/<br\s*[\/]?>/gi, "\n");
+    
+    // Handle header tags - 6 levels should be enough
+    text = text.replace(/<h1>/gi, "# ");
+    text = text.replace(/<h2>/gi, "## ");
+    text = text.replace(/<h3>/gi, "### ");
+    text = text.replace(/<h4>/gi, "#### ");
+    text = text.replace(/<h5>/gi, "##### ");
+    text = text.replace(/<h6>/gi, "###### ");
+    text = text.replace(/<\/h[1-6]>/gi, "");    // Discard end tags
+    
+    
+    // Handle IMG Tags
+    var imgTagRegex = /(\<img[^>]+>)/gid;
+    var imgTagMsgTextArray;
+    workingText = "";   // Zero out working area
+    currPos = 0;        // Zero out position in text that we're processing
+    
+    // Look through IMG HTML tags
+    while ((imgTagMsgTextArray = imgTagRegex.exec(text)) !== null) {
+        
+        console.log(`Found IMG Tag: ${imgTagMsgTextArray[0]}. Next starts at ${imgTagMsgTextArray.lastIndex}. Indices[0]=${imgTagMsgTextArray.indices[0][0]}, ${imgTagMsgTextArray.indices[0][1]}`);
+        
+        let imgTagHtml = imgTagMsgTextArray[0];                     // The <img> tag
+        let imgTagStartLoc = imgTagMsgTextArray.indices[0][0];
+        let imgTagEndLoc = imgTagMsgTextArray.indices[0][1];
+        
+        currText = text.substr(currPos, imgTagStartLoc-currPos);    // Text from last IMG tag to start of new IMG tag
+        workingText += currText;                                    // Add that text to working area
+        
+        let imgTagContentId = /src\s*="cid:(.*?)"/i.exec(imgTagHtml);   // The CONTENTID of the 'src="cid:CONTENTID"' in the IMG tag of an attached image
+        let imgTagUrl = /src\s*="(http(s)?\:\/\/.*?)"/i.exec(imgTagHtml);   // The URL of the 'src' field in the IMG tag of a remote image
+        let imgTagAltText = /alt\s*="(.*?)"/i.exec(imgTagHtml);         // The alt text in the IMG tag
+        
+        // Get the data from the image tag needed for markdown.
+        var imgMarkdownTitle = "";
+        var imgMarkdownLink = "";
+        if(imgTagContentId != null) {
+            console.log("KNH DEBUG: Embedded image content-id="+imgTagContentId[1]);
+            
+            // This is an embedded image. Get filename from the content id
+            filename = contentIdToFilenameMap[imgTagContentId[1]];
+            if(filename != undefined) {
+                imgMarkdownLink = filename;
+                
+                console.log("KNH DEBUG: Embedded image filename="+filename);
+            } else {
+                // No filename that matches content ID. Log an error
+                imgMarkdownLink = "FileNotFound";
+                console.log("ERROR: Could not find embedded file for content-ID="+imgTagContentId);
+            }
+        }
+        if(imgTagUrl != null) {
+            console.log("KNH DEBUG: External image url="+imgTagUrl[1]);
+            // This is an external image. Embed the HTTP link
+            imgMarkdownLink = imgTagUrl[1];
+        }
+        
+        // Now, get any alt text from the IMG tag
+        if(imgTagAltText != null) {
+            console.log("KNH DEBUG: Image altText="+imgTagAltText[1]);
+            imgMarkdownTitle = imgTagAltText[1];
+        } else {
+            // No alt txt - use link as a default
+            imgMarkdownTitle = imgMarkdownLink;
+        }
+        
+        // Add markdown image to the working area
+        var imgMarkdown = "![" + imgMarkdownTitle + "](" + imgMarkdownLink + ")";
+        console.log("KNH DEBUG: Image markdown="+imgMarkdown);
+        workingText += imgMarkdown;
+        
+        // Move forward in HTML text for next IMG tag
+        currPos = imgTagEndLoc;
+        };
+        
+        
+    // Overwrite text with the one containing the image markdown syntax.
+    text = workingText;
+    
+        
+        
+    console.group();
+    console.log("=================================");
+    console.log("KNH DEBUG - Testing REGEX exec...");
+
+    // KNH TO DO - Add <li>/</li> to REGEX and then parse through the whole string...
+    // KNH TODO - lower case tags, allow * inside tag in case there's properies, etc on tags
+
+
+    // Handle list (ordered and unordered) HTML tags    
+    var listTagRegex = /(\<ol\>|\<\/ol\>|\<ul\>|\<\/ul\>|\<li\>|\<\/li\>)/gid;
+    var ListTagMsgTextArray;
+    workingText = "";   // Zero out working area
+    currPos = 0;        // Zero out position in text that we're processing
+    var listCounterStack = [];  // Keep a stack to track ordered (+1) and unordered (-1) lists.
+    while ((ListTagMsgTextArray = listTagRegex.exec(text)) !== null) {
+        
+        console.log(`Found List Tag: ${ListTagMsgTextArray[0]}. Next starts at ${listTagRegex.lastIndex}. Indices[0]=${ListTagMsgTextArray.indices[0][0]}, ${ListTagMsgTextArray.indices[0][1]}`);
+        
+        tagStart = ListTagMsgTextArray.indices[0][0];
+        tagEnd = ListTagMsgTextArray.indices[0][1];
+        
+        currText = text.substr(currPos, tagStart-currPos);
+        tag = text.substr(tagStart, tagEnd-tagStart);
+        
+
+        console.log("  Before tag:" + currText);
+        console.log("  Tag:" + tag);
+        
+        
+        workingText += currText;
+        
+        switch(String(tag)) {  // KNH TODO - lower case tags, check only first 3-4 chars (in case there's properies, etc on tags)
+           
+           // Handle any list item tags.
+           case "<li>":
+               // Are there existing ul/ol lists?
+               if(listCounterStack.length < 1) {
+                   console.log("ERROR: Malformed HTML - LI tags without OL/UL setup");
+                   continue;
+               }
+               
+               console.log("KNH DEBUG - found an LI tag. stack value is " + listCounterStack.length);
+               
+               // Pad the list element with indent
+               workingText += "\n" + "    ".repeat(listCounterStack.length - 1);
+               
+               // Add ordered or unordered list
+               if(listCounterStack.at(-1) > 0) {
+                   // Ordered list - add markdown syntax
+                   workingText += listCounterStack.at(-1).toString() + ". ";
+                   
+                   // Increment ordered list counter
+                   listCounterStack[listCounterStack.length-1]++;
+               } else {
+                   // Unordered list - add markdown syntax
+                   workingText += "- ";
+               }
+               break;
+               
+           // Nothing to do list item end tags - just discard them.
+           case "</li>":
+               break;
+           
+           case "<ol>":
+               // Start of ordered list
+               listCounterStack.push(1);
+               break;
+               
+           case "<ul>":
+               // Start of ordered list
+               listCounterStack.push(-1);
+               break;
+               
+           case "</ol>":
+           case "</ul>":
+               // End list
+               listCounterStack.pop(1);
+               //workingText += "\n";
+               break;
+           default:
+                console.log("KNH ERROR: Shouldn't get here with tag '" + tag + "'");
+       }
+
+        // Move forward in HTML text for next list tag
+        currPos = tagEnd;
+    }
+
+    // Take any text following last list tag
+    workingText += text.substr(currPos, text.length-currPos);
+
+
+    console.log("New note:\n" + workingText);
+
+    console.log("=================================");
+
+    console.groupEnd();
+
+    // Overwrite text with the one containing proper lists.
+    text = workingText;
+    
+    
+    
+
+    
+    // Replace underscores and asterisks, which have special meaning in markdown
+    //text = text.replace(/_/gi, "\\_");
+    //text = text.replace(/\*/gi, "\\\*");
+    
+    // kNH 20241027 - below line breaks embedded iamges. Unclear why...
+    //text = text.replace(/([\*_#])/gi, "\\$1");
+    
+    
+    // Handle italics and bold . It's important to use different
+    // syntax for each (underscores vs. asterisks) to allow interleaving.
+    text = text.replace(/<i>/gi, "_");
+    text = text.replace(/<\/i>/gi, "_");
+    text = text.replace(/<b>/gi, "**");
+    text = text.replace(/<\/b>/gi, "**");
+    
+    // Strikethrough - obsolete <s> and correct <strike> tags
+      text = text.replace(/<s>/gi, "~~");
+      text = text.replace(/<\/s>/gi, "~~");
+      text = text.replace(/<strike>/gi, "~~");
+      text = text.replace(/<\/strike>/gi, "~~");
+    
+    // Handle horizontal lines
+    text = text.replace(/<hr[^>]+>/gi, "---");
+    
+    
+
+
+
+
+
+
+
+    // KNH to do 
+    // backslashes
+    // Any chars with special meaning in markdown that need to be escaped - make a single REGEX for them/backslash/asterisk/underscore and preceed with backslash
+    
+    // Tags with lower/no priority
+    // headers
+    // tables
+    // strikethrough
+    
+
+
+
+
+
+
+    text = text.replace(/<[^>]+>/gi, "");  // Remove any remaining tags
+    
+    //text = text.replace(/^\s*/gim, "");  // Trim leading spaces - KNH - this breaks indented lists. Need to move.
+    
+    text = text.replace(/ ,/gi, ",");   // Trim spaces in front of commas. KNH - is this needed?
+    //text = text.replace(/ +/gi, " ");  // Trim spaces - KNH - this breaks indented lists. Need to move.
+
+    // Character substitutions
+    text = text.replace(/&Auml;/g, "Ä");
+    text = text.replace(/&Uuml;/g, "Ü");
+    text = text.replace(/&Ouml;/g, "Ö");
+    text = text.replace(/&auml;/g, "ä");
+    text = text.replace(/&uuml;/g, "ü");
+    text = text.replace(/&ouml;/g, "ö");
+    text = text.replace(/&szlig;/gi, "ß");
+    text = text.replace(/&lt;/gi, "<");
+    text = text.replace(/&gt;/gi, ">");
+    text = text.replace(/&amp;/gi, "&");
+    text = text.replace(/&quot;/gi, "\"");
+    text = text.replace(/&nbsp;/gi, " ");
+
+    console.log("------------------------------------------------");
+
+
+    return text;
+
+}
+
+
+
+
 // Function to extract text from a message object (specifically, a messagePart object),
 // then recurse through any part[] arrays beneath that for more text.
-function buildMessageBody(msgPart, maxEmailSize)
+function buildMessageBody(msgPart, maxEmailSize, contentIdToFilenameMap)
 {
-    let messageText = "";
-    
     console.log("background.js - buildMessageBody -  msgPart.contentType=" +  msgPart.contentType);
-    
-    // See if there's plaintext email content
-    if (typeof msgPart.body !== 'undefined' && msgPart.contentType == "text/plain") {
-            messageText = messageText + msgPart.body;
+        
+    // See if there's HTML content
+    if (typeof msgPart.body !== 'undefined' && msgPart.contentType == "text/html") {
+        
+        console.log("KNH DEBUG - clipping HTML");
+        
+            htmlMessageBody = htmlMessageBody + htmlToMarkdown(msgPart.body, contentIdToFilenameMap);
+        }
+    // If no HTML, see if there's plaintext
+    else if (typeof msgPart.body !== 'undefined' && msgPart.contentType == "text/plain") {
+        console.log("KNH DEBUG - clipping Plaintext");
+            plainTextMessageBody = plainTextMessageBody + msgPart.body;
         }
         
     // Is there a parts[] array?
@@ -312,17 +624,21 @@ function buildMessageBody(msgPart, maxEmailSize)
         // Loop through all elements of the parts[] array
         for (let i = 0; i < msgPart.parts.length; ++i) {
             // For each of those elements, add element's .body, if it exists
-            messageText = messageText + buildMessageBody(msgPart.parts[i]);
+            buildMessageBody(msgPart.parts[i], maxEmailSize, contentIdToFilenameMap);
         }
     }
     
-    // Do we need to crop the email text?    
-    if (messageText.length > maxEmailSize) {
-        messageText = messageText.substr(1, maxEmailSize);
-        messageText = messageText + "\n\n\n ========= Email cropped after " + maxEmailSize + " bytes ========= \n";
+    // Do we need to crop the email text? Check for plain text first.
+    if (plainTextMessageBody.length > maxEmailSize) {
+        plainTextMessageBody = plainTextMessageBody.substr(1, maxEmailSize);
+        plainTextMessageBody = plainTextMessageBody + "\n\n\n ========= Plain text Email cropped after " + maxEmailSize + " bytes ========= \n";
     }
     
-    return messageText;
+    // Now check for HTML text size.
+    if (htmlMessageBody.length > maxEmailSize) {
+        htmlMessageBody = htmlMessageBody.substr(1, maxEmailSize);
+        htmlMessageBody = htmlMessageBody + "\n\n\n ========= HTML Email cropped after " + maxEmailSize + " bytes ========= \n";
+    }
 }
 
 // Function to get "to," "cc," and "bcc" fields and format them as requested.
@@ -463,7 +779,7 @@ async function clipEmail(storedParameters)
     // TODO: Put in template subsitition so it's only processed if used
     let messageIdUri = "mid:" + message.headerMessageId;        // Create a mail "mid:" URI with the message ID
     
-    // Build the message tag list that refelcts howthe email was tagged.
+    // Build the message tag list that reflects how the email was tagged.
     // TODO: Put in a function so it's not processed if not used
     let messageTagList = "";
     if(undefined != message.tags) {
@@ -485,21 +801,41 @@ async function clipEmail(storedParameters)
         }
     }
     
+    // Save message attachments and get a markdown list with links to them and a map of content-id to the files.
+    const contentIdToFilenameMap = [];
+    attachmentList = await saveAttachments(message.id, attachmentFolderPath, 
+        attachmentSaveEnabled, contentIdToFilenameMap);
+        
+    console.log("KNH DEBUG: contentIdToFilenameMap is:");
+    console.dir(contentIdToFilenameMap);
+    
     // Extract message body text from the message. First, see if user
     // selected specific text to be saved.    
+    // KNH TODO - Can this handle HTML?
     let messageBody = await readTextSelection(latestMsgDispTab);
     
     // Was anything selected?
     if(messageBody == "") {
-        // No text was selected - get entire message text.
-        messageBody = buildMessageBody(full, maxEmailSize);
+        // No text was selected - get entire message text. Zero out variables for extraced message content.
+        plainTextMessageBody = "";  // Plain text of clipped message body
+        htmlMessageBody = "";       // HTML of clipped message body translated to markdown 
+        
+        //messageBody = buildMessageBody(full, maxEmailSize, contentIdToFilenameMap);
+        
+        // Get the message text
+        buildMessageBody(full, maxEmailSize, contentIdToFilenameMap);
+        
+        // Set the message body to the HTML content (if present) or the plain text.
+        if(htmlMessageBody != "") {
+            // Use the HTML, translated to markdown.
+            messageBody = htmlMessageBody;
+        } else {
+            // There is no HTML. Just use the plain text.
+            messageBody = plainTextMessageBody;
+        }
     }
     
     console.log("background.js - clipEmail - messageBody: " + messageBody);
-
-    // Save message attachments and get a markdown list with links to them.
-    attachmentList = await saveAttachments(message.id, attachmentFolderPath, 
-        attachmentSaveEnabled);
     
     // Build note name and content from templates and message data.
     // Use these placeholders for note and time content:
