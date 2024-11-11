@@ -321,7 +321,8 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     
     // Discard tags and uneeded formatting.
     text = text.replaceAll(/^\s+/gim, "");  // Remove all leading whitespace - the "m" allows start-of-line match
-    text = text.replace(/\n/gi, ""); // Remove all CRs
+    text = text.replace(/\n/gi, ""); // Remove all newlines
+    text = text.replace(/\r/gi, ""); // Remove all CRs
     text = text.replace(/<style([\s\S]*?)<\/style>/gi, "");  // Remove style and script contents
     text = text.replace(/<script([\s\S]*?)<\/script>/gi, "");
     
@@ -339,12 +340,12 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     text = text.replace(/<br\s*[\/]?>/gi, "\n");
     
     // Handle header tags - 6 levels should be enough
-    text = text.replace(/<h1>/gi, "# ");
-    text = text.replace(/<h2>/gi, "## ");
-    text = text.replace(/<h3>/gi, "### ");
-    text = text.replace(/<h4>/gi, "#### ");
-    text = text.replace(/<h5>/gi, "##### ");
-    text = text.replace(/<h6>/gi, "###### ");
+    text = text.replace(/<h1>/gi, "\n# ");
+    text = text.replace(/<h2>/gi, "\n## ");
+    text = text.replace(/<h3>/gi, "\n### ");
+    text = text.replace(/<h4>/gi, "\n#### ");
+    text = text.replace(/<h5>/gi, "\n##### ");
+    text = text.replace(/<h6>/gi, "\n###### ");
     text = text.replace(/<\/h[1-6]>/gi, "");    // Discard end tags
     
     
