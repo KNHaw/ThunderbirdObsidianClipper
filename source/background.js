@@ -303,21 +303,23 @@ function correctObsidianFilename(noteFileName, useUnicodeChars=true, subSpacesWi
     return noteFileName;
 }
 
-// KNH Test - try stripping HTML
 
 
-
-// Function for conversion HTML to markdown text.
+// Function to convert HTML to markdown text.
+// Known deficiencies/TODOs for HTML:
+//  - On list tags, allow * inside tag in case there's properies, etc on tags
+//  - Protext underscores, asterisks, and backslashes with backslashes
+//  - Tables
+//  - Underscores
+//  - Trimming space disabled in code below
+//
 function htmlToMarkdown(html, contentIdToFilenameMap) {
     var text = html;        // Inputed text
     var workingText = "";   // Working area for text processing
     var currPos = 0;        // Positon in TEXT bring processed - used sporadically
     
-
-    console.log("------------------------------------------------");
-    console.log("KNH kludge - HTML content:");
-    console.log(text);    
-    
+    console.group("htmlToMarkdown() converting HTML to markdown");
+    console.log("HTML input:\n" + text);
     
     // Discard tags and uneeded formatting.
     text = text.replaceAll(/^\s+/gim, "");  // Remove all leading whitespace - the "m" allows start-of-line match
@@ -348,7 +350,6 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     text = text.replace(/<h6>/gi, "\n###### ");
     text = text.replace(/<\/h[1-6]>/gi, "");    // Discard end tags
     
-    
     // Handle IMG Tags
     var imgTagRegex = /(\<img[^>]+>)/gid;
     var imgTagMsgTextArray;
@@ -357,9 +358,6 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     
     // Look through IMG HTML tags
     while ((imgTagMsgTextArray = imgTagRegex.exec(text)) !== null) {
-        
-        console.log(`Found IMG Tag: ${imgTagMsgTextArray[0]}. Next starts at ${imgTagMsgTextArray.lastIndex}. Indices[0]=${imgTagMsgTextArray.indices[0][0]}, ${imgTagMsgTextArray.indices[0][1]}`);
-        
         let imgTagHtml = imgTagMsgTextArray[0];                     // The <img> tag
         let imgTagStartLoc = imgTagMsgTextArray.indices[0][0];
         let imgTagEndLoc = imgTagMsgTextArray.indices[0][1];
@@ -375,14 +373,10 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
         var imgMarkdownTitle = "";
         var imgMarkdownLink = "";
         if(imgTagContentId != null) {
-            console.log("KNH DEBUG: Embedded image content-id="+imgTagContentId[1]);
-            
             // This is an embedded image. Get filename from the content id
             filename = contentIdToFilenameMap[imgTagContentId[1]];
             if(filename != undefined) {
                 imgMarkdownLink = filename;
-                
-                console.log("KNH DEBUG: Embedded image filename="+filename);
             } else {
                 // No filename that matches content ID. Log an error
                 imgMarkdownLink = "FileNotFound";
@@ -390,14 +384,12 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
             }
         }
         if(imgTagUrl != null) {
-            console.log("KNH DEBUG: External image url="+imgTagUrl[1]);
             // This is an external image. Embed the HTTP link
             imgMarkdownLink = imgTagUrl[1];
         }
         
         // Now, get any alt text from the IMG tag
         if(imgTagAltText != null) {
-            console.log("KNH DEBUG: Image altText="+imgTagAltText[1]);
             imgMarkdownTitle = imgTagAltText[1];
         } else {
             // No alt txt - use link as a default
@@ -406,7 +398,6 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
         
         // Add markdown image to the working area
         var imgMarkdown = "![" + imgMarkdownTitle + "](" + imgMarkdownLink + ")";
-        console.log("KNH DEBUG: Image markdown="+imgMarkdown);
         workingText += imgMarkdown;
         
         // Move forward in HTML text for next IMG tag
@@ -417,40 +408,24 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     // Overwrite text with the one containing the image markdown syntax.
     text = workingText;
     
-        
-        
-    console.group();
-    console.log("=================================");
-    console.log("KNH DEBUG - Testing REGEX exec...");
-
-    // KNH TO DO - Add <li>/</li> to REGEX and then parse through the whole string...
-    // KNH TODO - lower case tags, allow * inside tag in case there's properies, etc on tags
-
-
     // Handle list (ordered and unordered) HTML tags    
     var listTagRegex = /(\<ol\>|\<\/ol\>|\<ul\>|\<\/ul\>|\<li\>|\<\/li\>)/gid;
     var ListTagMsgTextArray;
     workingText = "";   // Zero out working area
     currPos = 0;        // Zero out position in text that we're processing
     var listCounterStack = [];  // Keep a stack to track ordered (+1) and unordered (-1) lists.
+    
+    // Loop through all list HTML tags
     while ((ListTagMsgTextArray = listTagRegex.exec(text)) !== null) {
-        
-        console.log(`Found List Tag: ${ListTagMsgTextArray[0]}. Next starts at ${listTagRegex.lastIndex}. Indices[0]=${ListTagMsgTextArray.indices[0][0]}, ${ListTagMsgTextArray.indices[0][1]}`);
-        
         tagStart = ListTagMsgTextArray.indices[0][0];
         tagEnd = ListTagMsgTextArray.indices[0][1];
         
         currText = text.substr(currPos, tagStart-currPos);
         tag = text.substr(tagStart, tagEnd-tagStart);
         
-
-        console.log("  Before tag:" + currText);
-        console.log("  Tag:" + tag);
-        
-        
         workingText += currText;
         
-        switch(String(tag)) {  // KNH TODO - lower case tags, check only first 3-4 chars (in case there's properies, etc on tags)
+        switch(String(tag).toLowerCase()) {  // KNH TODO - check only first 3-4 chars (in case there's properies, etc on tags)
            
            // Handle any list item tags.
            case "<li>":
@@ -460,7 +435,8 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
                    continue;
                }
                
-               console.log("KNH DEBUG - found an LI tag. stack value is " + listCounterStack.length);
+               // Discard any stray line breaks, as the list controls line spacing.
+               workingText = workingText.replace(/\n+/gi, "\n");
                
                // Pad the list element with indent
                workingText += "\n" + "    ".repeat(listCounterStack.length - 1);
@@ -499,7 +475,7 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
                //workingText += "\n";
                break;
            default:
-                console.log("KNH ERROR: Shouldn't get here with tag '" + tag + "'");
+                console.log("ERROR: Shouldn't get here with list tag '" + tag + "'");
        }
 
         // Move forward in HTML text for next list tag
@@ -509,29 +485,19 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     // Take any text following last list tag
     workingText += text.substr(currPos, text.length-currPos);
 
-
-    console.log("New note:\n" + workingText);
-
-    console.log("=================================");
-
-    console.groupEnd();
-
     // Overwrite text with the one containing proper lists.
     text = workingText;
     
-    
-    
-
     
     // Replace underscores and asterisks, which have special meaning in markdown
     //text = text.replace(/_/gi, "\\_");
     //text = text.replace(/\*/gi, "\\\*");
     
-    // kNH 20241027 - below line breaks embedded iamges. Unclear why...
+    // KNH 20241027 - below line breaks embedded images. Unclear why...
     //text = text.replace(/([\*_#])/gi, "\\$1");
     
     
-    // Handle italics and bold . It's important to use different
+    // Handle italics and bold. It's important to use different
     // syntax for each (underscores vs. asterisks) to allow interleaving.
     text = text.replace(/<i>/gi, "_");
     text = text.replace(/<\/i>/gi, "_");
@@ -539,36 +505,13 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     text = text.replace(/<\/b>/gi, "**");
     
     // Strikethrough - obsolete <s> and correct <strike> tags
-      text = text.replace(/<s>/gi, "~~");
-      text = text.replace(/<\/s>/gi, "~~");
-      text = text.replace(/<strike>/gi, "~~");
-      text = text.replace(/<\/strike>/gi, "~~");
+    text = text.replace(/<s>/gi, "~~");
+    text = text.replace(/<\/s>/gi, "~~");
+    text = text.replace(/<strike>/gi, "~~");
+    text = text.replace(/<\/strike>/gi, "~~");
     
     // Handle horizontal lines
     text = text.replace(/<hr[^>]+>/gi, "---");
-    
-    
-
-
-
-
-
-
-
-    // KNH to do 
-    // backslashes
-    // Any chars with special meaning in markdown that need to be escaped - make a single REGEX for them/backslash/asterisk/underscore and preceed with backslash
-    
-    // Tags with lower/no priority
-    // headers
-    // tables
-    // strikethrough
-    
-
-
-
-
-
 
     text = text.replace(/<[^>]+>/gi, "");  // Remove any remaining tags
     
@@ -591,11 +534,10 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     text = text.replace(/&quot;/gi, "\"");
     text = text.replace(/&nbsp;/gi, " ");
 
-    console.log("------------------------------------------------");
-
+    console.log("Translated markdown:\n" + workingText);
+    console.groupEnd();
 
     return text;
-
 }
 
 
@@ -609,14 +551,10 @@ function buildMessageBody(msgPart, maxEmailSize, contentIdToFilenameMap)
         
     // See if there's HTML content
     if (typeof msgPart.body !== 'undefined' && msgPart.contentType == "text/html") {
-        
-        console.log("KNH DEBUG - clipping HTML");
-        
             htmlMessageBody = htmlMessageBody + htmlToMarkdown(msgPart.body, contentIdToFilenameMap);
         }
     // If no HTML, see if there's plaintext
     else if (typeof msgPart.body !== 'undefined' && msgPart.contentType == "text/plain") {
-        console.log("KNH DEBUG - clipping Plaintext");
             plainTextMessageBody = plainTextMessageBody + msgPart.body;
         }
         
@@ -806,9 +744,6 @@ async function clipEmail(storedParameters)
     const contentIdToFilenameMap = [];
     attachmentList = await saveAttachments(message.id, attachmentFolderPath, 
         attachmentSaveEnabled, contentIdToFilenameMap);
-        
-    console.log("KNH DEBUG: contentIdToFilenameMap is:");
-    console.dir(contentIdToFilenameMap);
     
     // Extract message body text from the message. First, see if user
     // selected specific text to be saved.    
