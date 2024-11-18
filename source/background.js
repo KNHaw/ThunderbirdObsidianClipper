@@ -307,7 +307,6 @@ function correctObsidianFilename(noteFileName, useUnicodeChars=true, subSpacesWi
 
 // Function to convert HTML to markdown text.
 // Known deficiencies/TODOs for HTML:
-//  - On list tags, allow * inside tag in case there's properies, etc on tags
 //  - Protext underscores, asterisks, and backslashes with backslashes
 //  - Tables
 //  - Underscores
@@ -321,11 +320,14 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     console.group("htmlToMarkdown() converting HTML to markdown");
     console.log("HTML input:\n" + text);
     
-    // Discard tags and uneeded formatting.
+    // Discard formatting that was ignored by HTML anyways.
     text = text.replaceAll(/^\s+/gim, "");  // Remove all leading whitespace - the "m" allows start-of-line match
     text = text.replace(/\n/gi, ""); // Remove all newlines
     text = text.replace(/\r/gi, ""); // Remove all CRs
-    text = text.replace(/<style([\s\S]*?)<\/style>/gi, "");  // Remove style and script contents
+    text = text.replace(/ +/gi, " "); // Replace all multiple spaces with just one.
+    
+    // Remove style and script contents
+    text = text.replace(/<style([\s\S]*?)<\/style>/gi, ""); 
     text = text.replace(/<script([\s\S]*?)<\/script>/gi, "");
     
     // Handle links
@@ -356,7 +358,7 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     workingText = "";   // Zero out working area
     currPos = 0;        // Zero out position in text that we're processing
     
-    // Look through IMG HTML tags
+    // Look through IMG HTML tags, using the regex to grab text before the tag and the tag itself.
     while ((imgTagMsgTextArray = imgTagRegex.exec(text)) !== null) {
         let imgTagHtml = imgTagMsgTextArray[0];                     // The <img> tag
         let imgTagStartLoc = imgTagMsgTextArray.indices[0][0];
@@ -410,13 +412,13 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     text = workingText;
     
     // Handle list (ordered and unordered) HTML tags
-    var listTagRegex = /(<(\/)?(ol|ul|li).*?>)/gid;   // Match LI, OL, or UL start and end tags. Allow for modifiers and properties isnide tag.
+    var listTagRegex = /(<(\/)?(ol|ul|li).*?>)/gid;   // Regex to match LI, OL, or UL start and end tags. Allow for modifiers and properties inside tag.
     var ListTagMsgTextArray;
     workingText = "";   // Zero out working area
     currPos = 0;        // Zero out position in text that we're processing
     var listCounterStack = [];  // Keep a stack to track ordered (+1) and unordered (-1) lists.
     
-    // Loop through all list HTML tags
+    // Loop through all list HTML tags, using the regex to grab text before the tag and the tag itself.
     while ((ListTagMsgTextArray = listTagRegex.exec(text)) !== null) {
         tagStart = ListTagMsgTextArray.indices[0][0];
         tagEnd = ListTagMsgTextArray.indices[0][1];
@@ -486,7 +488,6 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     // KNH 20241027 - below line breaks embedded images. Unclear why...
     //text = text.replace(/([\*_#])/gi, "\\$1");
     
-    
     // Handle italics and bold. It's important to use different
     // syntax for each (underscores vs. asterisks) to allow interleaving.
     text = text.replace(/<i>/gi, "_");
@@ -494,7 +495,7 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     text = text.replace(/<b>/gi, "**");
     text = text.replace(/<\/b>/gi, "**");
     
-    // Strikethrough - obsolete <s> and correct <strike> tags
+    // Strikethrough - handle obsolete <s> and up to date <strike> tags
     text = text.replace(/<s>/gi, "~~");
     text = text.replace(/<\/s>/gi, "~~");
     text = text.replace(/<strike>/gi, "~~");
@@ -503,14 +504,11 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     // Handle horizontal lines
     text = text.replace(/<hr[^>]+>/gi, "---");
 
-    text = text.replace(/<[^>]+>/gi, "");  // Remove any remaining tags
+    text = text.replace(/<[^>]+>/gi, "");  // Remove any remaining tags we haven't processed.
     
-    //text = text.replace(/^\s*/gim, "");  // Trim leading spaces - KNH - this breaks indented lists. Need to move.
-    
-    text = text.replace(/ ,/gi, ",");   // Trim spaces in front of commas. KNH - is this needed?
-    //text = text.replace(/ +/gi, " ");  // Trim spaces - KNH - this breaks indented lists. Need to move.
+    text = text.replace(/ ,/gi, ",");   // Trim spaces in front of commas. May not be needed, but it can't hurt.
 
-    // Character substitutions
+    // Make any HTML character substitutions
     text = text.replace(/&Auml;/g, "Ä");
     text = text.replace(/&Uuml;/g, "Ü");
     text = text.replace(/&Ouml;/g, "Ö");
@@ -570,7 +568,7 @@ function buildMessageBody(msgPart, maxEmailSize, contentIdToFilenameMap)
     }
 }
 
-// Function to get "to," "cc," and "bcc" fields and format them as requested.
+// Function to get "to," "cc," and "bcc" fields of an email and format them as requested.
 function getRecipients(msg, field, yamlFormat=false)
 {
     let recipientArray = "";
@@ -737,7 +735,7 @@ async function clipEmail(storedParameters)
     
     // Extract message body text from the message. First, see if user
     // selected specific text to be saved.    
-    // KNH TODO - Can this handle HTML?
+    // TODO - Make this handle HTML.
     let messageBody = await readTextSelection(latestMsgDispTab);
     
     // Was anything selected?
@@ -849,7 +847,8 @@ async function clipEmail(storedParameters)
     // Create new note
     // Supposedly, there's a defacto 200 char limit to URIs (https://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers)
     // However, testing of emails of near 20K found a URI max size of 35717 bytes.
-    // TODO: If there's problems with long notes, add a loop with APPEND for note content to handle bigger emails.
+    // TODO: If there's problems with long notes, add a loop with APPEND to append 
+    // note content a piece at a time to handle bigger emails.
     let openedWindow;
     openedWindow = window.open(obsidianUri, "_self");
     
