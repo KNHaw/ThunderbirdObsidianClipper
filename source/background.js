@@ -378,6 +378,7 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
             if(filename != undefined) {
                 imgMarkdownLink = filename;
             } else {
+                // KNH TODO - flag when attachments are not supported
                 // No filename that matches content ID. Log an error
                 imgMarkdownLink = "FileNotFound";
                 console.log("ERROR: Could not find embedded file for content-ID="+imgTagContentId);
@@ -408,8 +409,8 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     // Overwrite text with the one containing the image markdown syntax.
     text = workingText;
     
-    // Handle list (ordered and unordered) HTML tags    
-    var listTagRegex = /(\<ol\>|\<\/ol\>|\<ul\>|\<\/ul\>|\<li\>|\<\/li\>)/gid;
+    // Handle list (ordered and unordered) HTML tags
+    var listTagRegex = /(<(\/)?(ol|ul|li).*?>)/gid;   // Match LI, OL, or UL start and end tags. Allow for modifiers and properties isnide tag.
     var ListTagMsgTextArray;
     workingText = "";   // Zero out working area
     currPos = 0;        // Zero out position in text that we're processing
@@ -420,72 +421,61 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
         tagStart = ListTagMsgTextArray.indices[0][0];
         tagEnd = ListTagMsgTextArray.indices[0][1];
         
+        // Get the text before teh tag and the tag itself.
         currText = text.substr(currPos, tagStart-currPos);
         tag = text.substr(tagStart, tagEnd-tagStart);
         
+        // Add text before the tag to our workig text.
         workingText += currText;
         
-        switch(String(tag).toLowerCase()) {  // KNH TODO - check only first 3-4 chars (in case there's properies, etc on tags)
+       // Now, handle list item tags. 
+       if(/<li.*?>/gid.test(tag)) {    // Check for <LI> tag.
+           // Are there existing ul/ol lists?
+           if(listCounterStack.length < 1) {
+               console.log("ERROR: Malformed HTML - LI tags without OL/UL setup");
+               continue;
+           }
            
-           // Handle any list item tags.
-           case "<li>":
-               // Are there existing ul/ol lists?
-               if(listCounterStack.length < 1) {
-                   console.log("ERROR: Malformed HTML - LI tags without OL/UL setup");
-                   continue;
-               }
-               
-               // Discard any stray line breaks, as the list controls line spacing.
-               workingText = workingText.replace(/\n+/gi, "\n");
-               
-               // Pad the list element with indent
-               workingText += "\n" + "    ".repeat(listCounterStack.length - 1);
-               
-               // Add ordered or unordered list
-               if(listCounterStack.at(-1) > 0) {
-                   // Ordered list - add markdown syntax
-                   workingText += listCounterStack.at(-1).toString() + ". ";
-                   
-                   // Increment ordered list counter
-                   listCounterStack[listCounterStack.length-1]++;
-               } else {
-                   // Unordered list - add markdown syntax
-                   workingText += "- ";
-               }
-               break;
-               
-           // Nothing to do list item end tags - just discard them.
-           case "</li>":
-               break;
+           // Replace multiple line breaks with single line breaks, as the list controls line spacing.
+           workingText = workingText.replace(/\n+/gi, "\n");
            
-           case "<ol>":
-               // Start of ordered list
-               listCounterStack.push(1);
-               break;
+           // Pad the list element with indent
+           workingText += "\n" + "    ".repeat(listCounterStack.length - 1);
+           
+           // Check if this is an ordered (posative number on stack) or unordered list (-1 on stack) 
+           if(listCounterStack.at(-1) > 0) {
+               // Ordered list - add markdown syntax
+               workingText += listCounterStack.at(-1).toString() + ". ";
                
-           case "<ul>":
-               // Start of ordered list
-               listCounterStack.push(-1);
-               break;
-               
-           case "</ol>":
-           case "</ul>":
-               // End list
-               listCounterStack.pop(1);
-               //workingText += "\n";
-               break;
-           default:
-                console.log("ERROR: Shouldn't get here with list tag '" + tag + "'");
+               // Increment ordered list counter on the stack. We cna reference it later if needed.
+               listCounterStack[listCounterStack.length-1]++;
+           } else {
+               // Unordered list - just add markdown syntax
+               workingText += "- ";
+           }
+       } else if(/<\/li.*?>/gid.test(tag)) {   // Check for </LI> tag.
+           // Nothing to do for </LI> tags - just discard them.
+       } else if(/<ol.*?>/gid.test(tag)) {     // Check for <OL> tag.
+           // Start of ordered list - discard tag and put a +1 on stack for tracking nesting lists
+           listCounterStack.push(1);
+       } else if(/<ul.*?>/gid.test(tag)) {     // Check for <UL> tag.
+           // Start of unordered list - discard tag and put a +1 on stack for tracking nesting lists
+           listCounterStack.push(-1);
+       } else if(/<\/(o|u)l.*?>/gid.test(tag)) {   // Check for </OL> or </UL> tag.
+           // End list - just discard the tag and pop the stack
+           listCounterStack.pop(1);
+       } else {
+            console.log("ERROR: Shouldn't get here with list tag '" + tag + "'");
        }
-
-        // Move forward in HTML text for next list tag
+        
+        // Move forward in HTML text for to seek the next list tag
         currPos = tagEnd;
     }
 
     // Take any text following last list tag
     workingText += text.substr(currPos, text.length-currPos);
 
-    // Overwrite text with the one containing proper lists.
+    // Overwrite text with the one containing markdown formatted lists.
     text = workingText;
     
     
