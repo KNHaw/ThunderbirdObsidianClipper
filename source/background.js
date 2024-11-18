@@ -350,7 +350,7 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     text = text.replace(/<h4>/gi, "\n#### ");
     text = text.replace(/<h5>/gi, "\n##### ");
     text = text.replace(/<h6>/gi, "\n###### ");
-    text = text.replace(/<\/h[1-6]>/gi, "");    // Discard end tags
+    text = text.replace(/<\/h[1-6]>/gi, "\n");    // Discard end tags
     
     // Handle IMG Tags
     var imgTagRegex = /(\<img[^>]+>)/gid;
@@ -406,7 +406,9 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
         // Move forward in HTML text for next IMG tag
         currPos = imgTagEndLoc;
         };
-        
+
+    // Take any text following last IMG tag
+    workingText += text.substr(currPos, text.length-currPos);        
         
     // Overwrite text with the one containing the image markdown syntax.
     text = workingText;
@@ -480,14 +482,6 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     // Overwrite text with the one containing markdown formatted lists.
     text = workingText;
     
-    
-    // Replace underscores and asterisks, which have special meaning in markdown
-    //text = text.replace(/_/gi, "\\_");
-    //text = text.replace(/\*/gi, "\\\*");
-    
-    // KNH 20241027 - below line breaks embedded images. Unclear why...
-    //text = text.replace(/([\*_#])/gi, "\\$1");
-    
     // Handle italics and bold. It's important to use different
     // syntax for each (underscores vs. asterisks) to allow interleaving.
     text = text.replace(/<i>/gi, "_");
@@ -502,7 +496,7 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     text = text.replace(/<\/strike>/gi, "~~");
     
     // Handle horizontal lines
-    text = text.replace(/<hr[^>]+>/gi, "---");
+    text = text.replace(/<hr[^>]+>/gi, "\n\n---");
 
     text = text.replace(/<[^>]+>/gi, "");  // Remove any remaining tags we haven't processed.
     
