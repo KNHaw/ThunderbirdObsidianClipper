@@ -102,6 +102,28 @@
     <a href="https://github.com/KNHaw/ThunderbirdObsidianClipper/blob/main/docs/user-guide.md">online User Guide</a>.
   
   <hr>
+  
+  <h1>HTML Content Clipping</h1>
+  Emails can support HTML content. When an email contains HTML content, usually a plain text version of the message is also sent
+  so that email clients capable of only reading plain text can also read the message. By default, ObsidianClipper will clip
+  the HTML content when it is available instead of the plain text, translating it to Markdown format for Obsidian. This behavior
+  can be disabled with the control below so that only the plain text message is clipped.
+  <p>One of the features of HTML email is the ability to embed graphical images within the message. ObsidianClipper needs the optional
+  <i>Message Attachments</i> feature described above be enabled and the <i>Attachments folder</i> be set up to support embedded images.
+  Other HTML content (character formatting, images hosted on the internet, HTML lists, etc) is still supported even if
+  this is not the case.
+  
+  <form> 
+    <label><b>Enable HTML Content Clipping</b></label>
+    <input type="checkbox" id="htmlClippingEnabled">
+    <br>
+    <button id="submit-htmlClippingEnabled">Save</button>
+    <button id="default-htmlClippingEnabled">Restore Default</button>
+  </form>  
+  
+  <hr>
+  
+  
   <h1>Note Filename and Content Templates</h1>
   <p>Indicate how a clipped email note's filename should appear and how the actual 
   note content should be formatted. Create a template using the following placeholders 

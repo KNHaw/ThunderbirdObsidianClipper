@@ -56,6 +56,7 @@ defaultParameters["noteContentTemplate"] =
     
 defaultParameters["useColorCodedMsgTags"] = true;
 defaultParameters["unicodeCharSub"] = true;
+defaultParameters["htmlClippingEnabled"] = true;
 defaultParameters["subSpacesWithUnderscores"] = false;
 defaultParameters["additionalDisallowedChars"] = "[]#^";
 defaultParameters["noteNameReplaceChar"] = "-";
@@ -227,6 +228,9 @@ document.getElementById('default-attachmentSaveEnabled').onclick = function() {s
 
 document.getElementById('submit-attachmentFolderPath').onclick = function() {storeOption("attachmentFolderPath"); };
 document.getElementById('default-attachmentFolderPath').onclick = function() {storeDefault("attachmentFolderPath"); };
+
+document.getElementById('submit-htmlClippingEnabled').onclick = function() {storeOption("htmlClippingEnabled"); };
+document.getElementById('default-htmlClippingEnabled').onclick = function() {storeDefault("htmlClippingEnabled"); };
 
 document.getElementById('submit-noteFilenameTemplate').onclick = function() {storeOption("noteFilenameTemplate"); };
 document.getElementById('default-noteFilenameTemplate').onclick = function() {storeDefault("noteFilenameTemplate"); };

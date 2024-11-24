@@ -313,14 +313,12 @@ function replaceHtmlTable(wholeMatch, tagContents) {
     
     console.log("KNH DEBUG: Table to replace:\n"+tagContents);
     
-    
     tagContents = tagContents.replace(/\n/gi, ""); // Remove all newlines
     
     // Begin by escaping any pipe characters in the HTML source, as they 
     // are used in markdown syntax for tables.
     tagContents = tagContents.replaceAll(/\|/gm, "\\|");
     
-
     // Now, get rid of table header (<th>), footer (<tf>), and body (<tb>) start and end tags. 
     // We will simply use first row of table to be the markdown table header instead.
     tagContents = tagContents.replace(/<(\/)?t(h|f|b).*?>/gi, "");    
@@ -331,12 +329,10 @@ function replaceHtmlTable(wholeMatch, tagContents) {
     tagContents = tagContents.replaceAll(/<td.*?>/gm, "| ");       // Separate cells w/ pipe characters
     tagContents = tagContents.replaceAll(/<\/td.*?>/gm, " ");
     
-    //console.log("KNH DEBUG: In work:\n"+tagContents.split("\n")[0].match(/ \|/g).length);
-    
     // Count number of columns in first row, then inject
     // a markdown table header with that many columns after that row.
     numCol = tagContents.split("\n")[0].match(/ \|/g).length;
-    tagContents = tagContents.replace(/ \|$/m, "|\n|--------".repeat(numCol) + "|");
+    tagContents = tagContents.replace(/ \|$/m, " |\n" + "|--------".repeat(numCol) + "|");
     
     return "\n" + tagContents;
 }
@@ -552,7 +548,7 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     text = text.replace(/&quot;/gi, "\"");
     text = text.replace(/&nbsp;/gi, " ");
 
-    console.log("Translated markdown:\n" + workingText);
+    console.log("Translated markdown:\n" + text);
     console.groupEnd();
 
     return text;
@@ -670,6 +666,7 @@ async function clipEmail(storedParameters)
     let noteNameReplaceChar = "-";
     let attachmentFolderPath = "";
     let attachmentSaveEnabled = false;
+    let htmlClippingEnabled = true;
     let maxEmailSize = Number.MAX_SAFE_INTEGER;
     
     // Log that we're clipping the message
@@ -700,6 +697,7 @@ async function clipEmail(storedParameters)
             attachmentFolderPath = storedParameters["attachmentFolderPath"];
             attachmentSaveEnabled = storedParameters["attachmentSaveEnabled"];
             maxEmailSize = storedParameters["maxEmailSize"];
+            htmlClippingEnabled = storedParameters["htmlClippingEnabled"];
             
             // Correct any parameters the won't cause fatal errors when missing
             // by giving them default values.
@@ -779,8 +777,8 @@ async function clipEmail(storedParameters)
         // Get the message text
         buildMessageBody(full, maxEmailSize, contentIdToFilenameMap);
         
-        // Set the message body to the HTML content (if present) or the plain text.
-        if(htmlMessageBody != "") {
+        // Set the message body to the HTML content (if present and user has configured to clip it) or the plain text.
+        if((true == htmlClippingEnabled) && (htmlMessageBody != "")) {
             // Use the HTML, translated to markdown.
             messageBody = htmlMessageBody;
         } else {
