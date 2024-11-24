@@ -390,6 +390,7 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     currPos = 0;        // Zero out position in text that we're processing
     
     // Look through IMG HTML tags, using the regex to grab text before the tag and the tag itself.
+    // TODO: Refactor to use calls to replaceAll() instead of building string one element at a time.
     while ((imgTagMsgTextArray = imgTagRegex.exec(text)) !== null) {
         let imgTagHtml = imgTagMsgTextArray[0];                     // The <img> tag
         let imgTagStartLoc = imgTagMsgTextArray.indices[0][0];
@@ -452,6 +453,7 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     var listCounterStack = [];  // Keep a stack to track ordered (+1) and unordered (-1) lists.
     
     // Loop through all list HTML tags, using the regex to grab text before the tag and the tag itself.
+    // TODO: Refactor to use calls to replaceAll() instead of building string one element at a time.
     while ((ListTagMsgTextArray = listTagRegex.exec(text)) !== null) {
         tagStart = ListTagMsgTextArray.indices[0][0];
         tagEnd = ListTagMsgTextArray.indices[0][1];
