@@ -67,9 +67,9 @@ var htmlMessageBody = "";       // HTML of clipped message body translated to ma
 // Generic error handler
 function onError(error, context="") {
     if("" == context) {
-        console.log("background.js: " + error);
+        console.error("background.js: " + error);
     } else {
-        console.log("background.js: " + error + " (" + context + ")");
+        console.error("background.js: " + error + " (" + context + ")");
     }
         
 }
@@ -303,14 +303,45 @@ function correctObsidianFilename(noteFileName, useUnicodeChars=true, subSpacesWi
     return noteFileName;
 }
 
+////////////////////////////////
+// HTML to Markdown Functions
+////////////////////////////////
 
+// Function to convert HTML tables to markdown. Called by a replaceAll() with
+// a regular expression so to parameters are the matches.
+function replaceHtmlTable(wholeMatch, tagContents) {
+    
+    console.log("KNH DEBUG: Table to replace:\n"+tagContents);
+    
+    
+    tagContents = tagContents.replace(/\n/gi, ""); // Remove all newlines
+    
+    // Begin by escaping any pipe characters in the HTML source, as they 
+    // are used in markdown syntax for tables.
+    tagContents = tagContents.replaceAll(/\|/gm, "\\|");
+    
+
+    // Now, get rid of table header (<th>), footer (<tf>), and body (<tb>) start and end tags. 
+    // We will simply use first row of table to be the markdown table header instead.
+    tagContents = tagContents.replace(/<(\/)?t(h|f|b).*?>/gi, "");    
+    
+    // Convert HTML tags to markdown equivilent
+    tagContents = tagContents.replaceAll(/<tr.*?>/gm, "");         // Put rows on own lines
+    tagContents = tagContents.replaceAll(/<\/tr.*?>/gm, "|\n");
+    tagContents = tagContents.replaceAll(/<td.*?>/gm, "| ");       // Separate cells w/ pipe characters
+    tagContents = tagContents.replaceAll(/<\/td.*?>/gm, " ");
+    
+    //console.log("KNH DEBUG: In work:\n"+tagContents.split("\n")[0].match(/ \|/g).length);
+    
+    // Count number of columns in first row, then inject
+    // a markdown table header with that many columns after that row.
+    numCol = tagContents.split("\n")[0].match(/ \|/g).length;
+    tagContents = tagContents.replace(/ \|$/m, "|\n|--------".repeat(numCol) + "|");
+    
+    return "\n" + tagContents;
+}
 
 // Function to convert HTML to markdown text.
-// Known deficiencies/TODOs for HTML:
-//  - Protext underscores, asterisks, and backslashes with backslashes
-//  - Tables
-//  - Underscores
-//  - Trimming space disabled in code below
 //
 function htmlToMarkdown(html, contentIdToFilenameMap) {
     var text = html;        // Inputed text
@@ -383,7 +414,7 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
                 // KNH TODO - flag when attachments are not supported
                 // No filename that matches content ID. Log an error
                 imgMarkdownLink = "FileNotFound";
-                console.log("ERROR: Could not find embedded file for content-ID="+imgTagContentId);
+                console.error("Could not find embedded file for content-ID="+imgTagContentId);
             }
         }
         if(imgTagUrl != null) {
@@ -425,18 +456,18 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
         tagStart = ListTagMsgTextArray.indices[0][0];
         tagEnd = ListTagMsgTextArray.indices[0][1];
         
-        // Get the text before teh tag and the tag itself.
+        // Get the text before the tag and the tag itself.
         currText = text.substr(currPos, tagStart-currPos);
         tag = text.substr(tagStart, tagEnd-tagStart);
         
-        // Add text before the tag to our workig text.
+        // Add text before the tag to our working text.
         workingText += currText;
         
        // Now, handle list item tags. 
        if(/<li.*?>/gid.test(tag)) {    // Check for <LI> tag.
            // Are there existing ul/ol lists?
            if(listCounterStack.length < 1) {
-               console.log("ERROR: Malformed HTML - LI tags without OL/UL setup");
+               console.error("Malformed HTML - LI tags without OL/UL setup");
                continue;
            }
            
@@ -469,7 +500,7 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
            // End list - just discard the tag and pop the stack
            listCounterStack.pop(1);
        } else {
-            console.log("ERROR: Shouldn't get here with list tag '" + tag + "'");
+            console.error("Shouldn't get here with list tag '" + tag + "'");
        }
         
         // Move forward in HTML text for to seek the next list tag
@@ -481,6 +512,9 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
 
     // Overwrite text with the one containing markdown formatted lists.
     text = workingText;
+    
+    // Handle tables
+    text = text.replaceAll(/<table.*?>(.*)<\/table.*?>/gims, replaceHtmlTable);
     
     // Handle italics and bold. It's important to use different
     // syntax for each (underscores vs. asterisks) to allow interleaving.
@@ -905,7 +939,7 @@ const doHandleCommand = async (message, sender) => {
         break;
         
         default: {
-            console.log("ERROR: Do not recognize internal message '"+ thisCommand + "'");
+            console.error("Do not recognize internal message '"+ thisCommand + "'");
         }
         break;
     }
