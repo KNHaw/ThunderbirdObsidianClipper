@@ -81,6 +81,9 @@ async function displayAlert(messageString) {
     let retVal = "";
     console.log("displaying alert \"" + messageString + "\" in tab " + latestMsgDispTab);
     
+    // Also put message on status line
+    displayStatusText(messageString);
+    
     // Catch any errors thrown by executeScript()
     try {    
       const onelinecommand = 'alert(' + '"' + messageString + '");';
@@ -250,58 +253,6 @@ async function saveAttachments(messageId, attachmentFolderPath,
     return attachmentList;
 }
 
-
-///////////////////////////
-// Mail clipping functions
-///////////////////////////
-
-// Function to replace a reserved character with its Unicode equivilent or default replacement
-function replaceUnicodeChar(c, defaultReplace="") {
-    let newChar = unicodeSubs[c];
-    
-    // If Unicode match not found, return default replacement character
-    if(newChar == undefined) {
-        newChar = defaultReplace;
-    }
-    
-    return newChar;
-}
-
-// Function to change characters that are illegal in Obsidian file names to something palatable
-function correctObsidianFilename(noteFileName, useUnicodeChars=true, subSpacesWithUnderscores=false, additionalDisallowedChars='', noteNameReplaceChar='-')
-{
-    // Replace any whitespace in the replacement character with a null string so it deletes instead.
-    noteNameReplaceChar = noteNameReplaceChar.replaceAll(/\s/g, "");
-    
-    // Start with a list of reserved characters to replace. Because backslashes normally escape special charatcers, it's
-    // necesarry to escape them. Use four backslashes on this line to get two in searchString. Those two escape to have
-    // the RegExp() call below search on a single backslash 
-    let searchString = '|\\\\/"<>*:?';
-    
-    // Add the user provided list of reserved characters. First remove backslashes, which cause chaos and are 
-    // already handled above. Then escape every character in case something has special meaning in regular expression syntax.
-    additionalDisallowedChars.replaceAll(/\\/g, '');        // Remove backslashes
-    additionalDisallowedChars.split('').forEach( c => {     // Add escaped chars to list
-        searchString = searchString + '\\' + c;
-    });
-    
-    // Either replace or strip reserved characters. Begin with any unicode replacement user requested.
-    let searchRegExp = new RegExp("[" + searchString + "]", "g");
-    if(true == useUnicodeChars) {
-        noteFileName = noteFileName.replace(searchRegExp, m=>replaceUnicodeChar(m, noteNameReplaceChar) );
-    }
-    else {
-        // Use normal character sustitution on requested characters.
-        noteFileName = noteFileName.replace(searchRegExp, noteNameReplaceChar);
-    }
-    
-    // Finally, sub spaces with underscores if requested
-    if(true == subSpacesWithUnderscores) {
-        noteFileName = noteFileName.replaceAll(' ', '_');
-    }
-    
-    return noteFileName;
-}
 
 ////////////////////////////////
 // HTML to Markdown Functions
@@ -554,6 +505,57 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     return text;
 }
 
+///////////////////////////
+// Mail clipping functions
+///////////////////////////
+
+// Function to replace a reserved character with its Unicode equivilent or default replacement
+function replaceUnicodeChar(c, defaultReplace="") {
+    let newChar = unicodeSubs[c];
+    
+    // If Unicode match not found, return default replacement character
+    if(newChar == undefined) {
+        newChar = defaultReplace;
+    }
+    
+    return newChar;
+}
+
+// Function to change characters that are illegal in Obsidian file names to something palatable
+function correctObsidianFilename(noteFileName, useUnicodeChars=true, subSpacesWithUnderscores=false, additionalDisallowedChars='', noteNameReplaceChar='-')
+{
+    // Replace any whitespace in the replacement character with a null string so it deletes instead.
+    noteNameReplaceChar = noteNameReplaceChar.replaceAll(/\s/g, "");
+    
+    // Start with a list of reserved characters to replace. Because backslashes normally escape special charatcers, it's
+    // necesarry to escape them. Use four backslashes on this line to get two in searchString. Those two escape to have
+    // the RegExp() call below search on a single backslash 
+    let searchString = '|\\\\/"<>*:?';
+    
+    // Add the user provided list of reserved characters. First remove backslashes, which cause chaos and are 
+    // already handled above. Then escape every character in case something has special meaning in regular expression syntax.
+    additionalDisallowedChars.replaceAll(/\\/g, '');        // Remove backslashes
+    additionalDisallowedChars.split('').forEach( c => {     // Add escaped chars to list
+        searchString = searchString + '\\' + c;
+    });
+    
+    // Either replace or strip reserved characters. Begin with any unicode replacement user requested.
+    let searchRegExp = new RegExp("[" + searchString + "]", "g");
+    if(true == useUnicodeChars) {
+        noteFileName = noteFileName.replace(searchRegExp, m=>replaceUnicodeChar(m, noteNameReplaceChar) );
+    }
+    else {
+        // Use normal character sustitution on requested characters.
+        noteFileName = noteFileName.replace(searchRegExp, noteNameReplaceChar);
+    }
+    
+    // Finally, sub spaces with underscores if requested
+    if(true == subSpacesWithUnderscores) {
+        noteFileName = noteFileName.replaceAll(' ', '_');
+    }
+    
+    return noteFileName;
+}
 
 
 
