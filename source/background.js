@@ -261,10 +261,7 @@ async function saveAttachments(messageId, attachmentFolderPath,
 // Function to convert HTML tables to markdown. Called by a replaceAll() with
 // a regular expression so to parameters are the matches.
 function replaceHtmlTable(wholeMatch, tagContents) {
-    
-    console.log("KNH DEBUG: Table to replace:\n"+tagContents);
-    
-    tagContents = tagContents.replace(/\n/gi, ""); // Remove all newlines
+    tagContents = tagContents.replace(/\n/gi, ""); // Remove all newlines within table
     
     // Begin by escaping any pipe characters in the HTML source, as they 
     // are used in markdown syntax for tables.
@@ -272,20 +269,22 @@ function replaceHtmlTable(wholeMatch, tagContents) {
     
     // Now, get rid of table header (<th>), footer (<tf>), and body (<tb>) start and end tags. 
     // We will simply use first row of table to be the markdown table header instead.
-    tagContents = tagContents.replace(/<(\/)?t(h|f|b).*?>/gi, "");    
+    tagContents = tagContents.replace(/<(\/)?(thead|tfoot|tbody).*?>/gi, "");    
     
     // Convert HTML tags to markdown equivilent
     tagContents = tagContents.replaceAll(/<tr.*?>/gm, "");         // Put rows on own lines
     tagContents = tagContents.replaceAll(/<\/tr.*?>/gm, "|\n");
     tagContents = tagContents.replaceAll(/<td.*?>/gm, "| ");       // Separate cells w/ pipe characters
     tagContents = tagContents.replaceAll(/<\/td.*?>/gm, " ");
+    tagContents = tagContents.replaceAll(/<th.*?>/gm, "| ");       // Treat <th> tags as cells
+    tagContents = tagContents.replaceAll(/<\/th.*?>/gm, " ");
     
     // Count number of columns in first row, then inject
     // a markdown table header with that many columns after that row.
     numCol = tagContents.split("\n")[0].match(/ \|/g).length;
     tagContents = tagContents.replace(/ \|$/m, " |\n" + "|--------".repeat(numCol) + "|");
     
-    return "\n" + tagContents;
+    return "\n\n" + tagContents + "\n";
 }
 
 // Function to convert HTML to markdown text.
@@ -315,11 +314,12 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     text = text.replace(/<div>/gi, "\n\n");
     text = text.replace(/<p>/gi, "\n\n");
     text = text.replace(/<br\s*[\/]?>/gi, "\n");
+    text = text.replace(/<span.*?>/gi, "\n");
     
     // Discard end tags for previous deleted start tags
     text = text.replace(/<\/div>/gi, "");
     text = text.replace(/<\/p>/gi, "");
-    text = text.replace(/<br\s*[\/]?>/gi, "\n");
+    text = text.replace(/<\span.*?>/gi, "");
     
     // Handle header tags - 6 levels should be enough
     text = text.replace(/<h1>/gi, "\n# ");
@@ -464,6 +464,10 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     
     // Handle tables
     text = text.replaceAll(/<table.*?>(.*)<\/table.*?>/gims, replaceHtmlTable);
+    
+    // Escape asterisks and underscores, which we will use to replace <i> and <b> after
+    text = text.replace(/_/gi, "\\_");
+    text = text.replace(/\*/gi, "\\*");
     
     // Handle italics and bold. It's important to use different
     // syntax for each (underscores vs. asterisks) to allow interleaving.
