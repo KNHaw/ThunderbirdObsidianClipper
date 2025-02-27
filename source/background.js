@@ -206,7 +206,7 @@ async function saveAttachments(messageId, attachmentFolderPath,
             let fileType = file.type;
             let contentId = att.contentId;  // Optional field - be sure to verify it exists before use
             
-            console.log("Getting attachment " + filename + ", type " + fileType);
+            console.log("Getting attachment '" + filename + "', type " + fileType);
             
             let flobUrl = URL.createObjectURL(file);
             
@@ -221,7 +221,7 @@ async function saveAttachments(messageId, attachmentFolderPath,
             let fileDownloadStatus = await browser.downloads.search({id:imgId});
             // TODO - throw error on download fail.
 
-            console.log("Downloaded attachment " + fileDownloadStatus[0].filename);
+            console.log("Downloaded attachment '" + fileDownloadStatus[0].filename + "'");
             
             // To find the filename, take the full file path of the attachment and (if needed) convert it 
             // to a UNIX-like path (slashes instead of backslashes). Then take the last part of it.
@@ -234,7 +234,7 @@ async function saveAttachments(messageId, attachmentFolderPath,
             await displayStatusText(attachmentSaveSuccessMsg);
             
             // Append link to attachment file list
-            attachmentList += "\n - [" + fileNameAsWritten + "](" + attachmentFolderPath + "/" + fileNameAsWritten + ")";
+            attachmentList += "\n - [" + fileNameAsWritten + "](" + attachmentFolderPath + "/" + encodeURIComponent(fileNameAsWritten) + ")";
             
             // If the content ID field is used, map the content ID to the file path
             if(contentId) {
@@ -484,10 +484,10 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     
     // Handle horizontal lines
     text = text.replace(/<hr[^>]+>/gi, "\n\n---");
-
-    text = text.replace(/<[^>]+>/gi, "");  // Remove any remaining tags we haven't processed.
     
-    text = text.replace(/ ,/gi, ",");   // Trim spaces in front of commas. May not be needed, but it can't hurt.
+    text = text.replace(/<[^>]+>/gi, "");   // Remove any remaining tags we haven't processed.
+    
+    text = text.replace(/ ,/gi, ",");       // Trim spaces in front of commas. May not be needed, but it can't hurt.
 
     // Make any HTML character substitutions
     text = text.replace(/&Auml;/g, "Ä");
