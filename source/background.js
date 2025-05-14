@@ -196,8 +196,9 @@ async function saveAttachments(messageId, attachmentFolderPath,
     if(false == attachmentSaveEnabled){
         // No attachments. Return "none"
         attachmentList = "none";
-    } else {
-        
+    } else 
+    {
+    
         // Step through the attachments
         for (let att of attachments) {
             // Get the attached file.
@@ -239,9 +240,8 @@ async function saveAttachments(messageId, attachmentFolderPath,
             // If the content ID field is used, map the content ID to the file path
             if(contentId) {
                 contentIdToFilenameMap[contentId] = attachmentFolderPath + "/" + fileNameAsWritten;
-                }
-            
             }
+        }
     }
     
     // If no attachments clipped, correct list to read "none"
@@ -299,9 +299,8 @@ function htmlToMarkdown(html, contentIdToFilenameMap) {
     
     // Discard formatting that was ignored by HTML anyways.
     text = text.replaceAll(/^\s+/gim, "");  // Remove all leading whitespace - the "m" allows start-of-line match
-    text = text.replace(/\n/gi, ""); // Remove all newlines
-    text = text.replace(/\r/gi, ""); // Remove all CRs
-    text = text.replace(/ +/gi, " "); // Replace all multiple spaces with just one.
+    text = text.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]+/g," "); // Replace all CR's, newlines, and unicode equivilents
+    text = text.replace(/\s+/gi, " "); // Replace all multiple whitespaces with just one space.
     
     // Remove style and script contents
     text = text.replace(/<style([\s\S]*?)<\/style>/gi, ""); 
@@ -858,33 +857,42 @@ async function clipEmail(storedParameters)
     
     // Build the Obsidian URI, encoding characters like spaces or punctuation as required.
     // Start with the vault name.
-    let obsidianUri = "obsidian://new?vault=" + obsidianVaultName;
+    let obsidianBaseUri = "obsidian://new?vault=" + obsidianVaultName;
 
     // The PATH parameter to the URI is optional. Only add it if user specified a non-blank path.
     if(noteFolderPath != undefined && /[^\s]/.test(noteFolderPath) ) {
         // Path specified. Use FILE parameter to specify where the file should
         // go and what it should be called.
-        obsidianUri = obsidianUri + "&file=" + encodeURIComponent(noteFolderPath + "/" + noteSubject);
+        obsidianBaseUri = obsidianBaseUri + "&file=" + encodeURIComponent(noteFolderPath + "/" + noteSubject);
     } else {
         // Path not specified. Use NAME parameter to specify file anme and that it should be placed
         // at Obsidian's default location for notes.
-        obsidianUri = obsidianUri + "&name=" + encodeURIComponent(noteSubject);
+        obsidianBaseUri = obsidianBaseUri + "&name=" + encodeURIComponent(noteSubject);
     }
-    
-    // Finally, append the actual email content as the note content.
-    obsidianUri = obsidianUri + "&content=" + encodeURIComponent(noteContent);
-    console.log("background.js: obsidianUri: " + obsidianUri);
     
     // Log status
     await displayStatusText("ObsidianClipper: Sending data to Obsidian application.");
     
-    // Create new note
-    // Supposedly, there's a defacto 200 char limit to URIs (https://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers)
-    // However, testing of emails of near 20K found a URI max size of 35717 bytes.
-    // TODO: If there's problems with long notes, add a loop with APPEND to append 
-    // note content a piece at a time to handle bigger emails.
-    let openedWindow;
-    openedWindow = window.open(obsidianUri, "_self");
+    // Chop content into chunks below the 20K limit of the Obsidian URI mechanic and send it across.
+    let contentChunkSize = 10000;
+    for(var idx=0; idx < noteContent.length; idx = idx + contentChunkSize) {
+        // Grab a chunk of the message content
+        let contentChunk = noteContent.slice(idx, idx+contentChunkSize);
+        
+        // Is this the first chunk we're sending?
+        if(idx == 0) {
+            // Yes. Just create the note.
+            obsidianUri = obsidianBaseUri + "&content=" + encodeURIComponent(contentChunk);
+        } else {
+            // Append the chunk to the note
+            obsidianUri = obsidianBaseUri + "&append&content=" + encodeURIComponent(contentChunk);
+        }
+        
+        console.log("background.js: obsidianUri(idx=" + idx +"): " + obsidianUri);
+        let openedWindow;
+        openedWindow = window.open(obsidianUri, "_self");
+        
+    }
     
     // Log status
     await displayStatusText("ObsidianClipper: Message clipped.");
