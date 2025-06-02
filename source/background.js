@@ -20,8 +20,11 @@
 
 console.log("DEBUG - background.js is running!!!");
 
+// Set up trundown HTML to Markdown converter
+var turndownService = new TurndownService();
+
 // Global constants
-const STATUSLINE_PERSIST_MS = 10000;    // Delete status line messgaes after indicated time
+const STATUSLINE_PERSIST_MS = 10000;    // Delete status line messages after indicated time
 
 // Global, persistant variables.
 var latestMsgDispTab = 1;       // Latest tab recorded on an incoming onMessageDisplay event. Used for later reference.
@@ -93,8 +96,7 @@ async function displayAlert(messageString) {
     return retVal;
 }
 
-
-// Function to post an confirmation dialog to the user.
+// Function to post a confirmation dialog to the user.
 // Returns true if user selected OK and false on CANCEL.
 // NOTE: Do not pass escaped quotes in messageString as they can hose the executeScrpt()
 async function displayConfirm(messageString) {
@@ -253,261 +255,6 @@ async function saveAttachments(messageId, attachmentFolderPath,
     return attachmentList;
 }
 
-
-////////////////////////////////
-// HTML to Markdown Functions
-////////////////////////////////
-
-// Function to convert HTML tables to markdown. Called by a replaceAll() with
-// a regular expression so to parameters are the matches.
-function replaceHtmlTable(wholeMatch, tagContents) {
-    tagContents = tagContents.replace(/\n/gi, ""); // Remove all newlines within table
-    
-    // Begin by escaping any pipe characters in the HTML source, as they 
-    // are used in markdown syntax for tables.
-    tagContents = tagContents.replaceAll(/\|/gm, "\\|");
-    
-    // Now, get rid of table header (<th>), footer (<tf>), and body (<tb>) start and end tags. 
-    // We will simply use first row of table to be the markdown table header instead.
-    tagContents = tagContents.replace(/<(\/)?(thead|tfoot|tbody).*?>/gi, "");    
-    
-    // Convert HTML tags to markdown equivilent
-    tagContents = tagContents.replaceAll(/<tr.*?>/gm, "");         // Put rows on own lines
-    tagContents = tagContents.replaceAll(/<\/tr.*?>/gm, "|\n");
-    tagContents = tagContents.replaceAll(/<td.*?>/gm, "| ");       // Separate cells w/ pipe characters
-    tagContents = tagContents.replaceAll(/<\/td.*?>/gm, " ");
-    tagContents = tagContents.replaceAll(/<th.*?>/gm, "| ");       // Treat <th> tags as cells
-    tagContents = tagContents.replaceAll(/<\/th.*?>/gm, " ");
-    
-    // Count number of columns in first row, then inject
-    // a markdown table header with that many columns after that row.
-    numCol = tagContents.split("\n")[0].match(/ \|/g).length;
-    tagContents = tagContents.replace(/ \|$/m, " |\n" + "|--------".repeat(numCol) + "|");
-    
-    return "\n\n" + tagContents + "\n";
-}
-
-// Function to convert HTML to markdown text.
-//
-function htmlToMarkdown(html, contentIdToFilenameMap) {
-    var text = html;        // Inputed text
-    var workingText = "";   // Working area for text processing
-    var currPos = 0;        // Positon in TEXT bring processed - used sporadically
-    
-    console.group("htmlToMarkdown() converting HTML to markdown");
-    console.log("HTML input:\n" + text);
-    
-    // Discard formatting that was ignored by HTML anyways.
-    text = text.replaceAll(/^\s+/gim, "");  // Remove all leading whitespace - the "m" allows start-of-line match
-    text = text.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]+/g," "); // Replace all CR's, newlines, and unicode equivilents
-    text = text.replace(/\s+/gi, " "); // Replace all multiple whitespaces with just one space.
-    
-    // Remove style and script contents
-    text = text.replace(/<style([\s\S]*?)<\/style>/gi, ""); 
-    text = text.replace(/<script([\s\S]*?)<\/script>/gi, "");
-    
-    // Handle links
-    text = text.replace(/<a.*?href="(.*?)[\?\"].*?>(.*?)<\/a.*?>/gi, "[$2]($1)");
-    
-    // Some tags are treated as extra lines
-    text = text.replace(/<div>/gi, "\n\n");
-    text = text.replace(/<p>/gi, "\n\n");
-    text = text.replace(/<br\s*[\/]?>/gi, "\n");
-    text = text.replace(/<span.*?>/gi, "\n");
-    
-    // Discard end tags for previous deleted start tags
-    text = text.replace(/<\/div>/gi, "");
-    text = text.replace(/<\/p>/gi, "");
-    text = text.replace(/<\span.*?>/gi, "");
-    
-    // Handle header tags - 6 levels should be enough
-    text = text.replace(/<h1>/gi, "\n# ");
-    text = text.replace(/<h2>/gi, "\n## ");
-    text = text.replace(/<h3>/gi, "\n### ");
-    text = text.replace(/<h4>/gi, "\n#### ");
-    text = text.replace(/<h5>/gi, "\n##### ");
-    text = text.replace(/<h6>/gi, "\n###### ");
-    text = text.replace(/<\/h[1-6]>/gi, "\n");    // Discard end tags
-    
-    // Handle IMG Tags
-    var imgTagRegex = /(\<img[^>]+>)/gid;
-    var imgTagMsgTextArray;
-    workingText = "";   // Zero out working area
-    currPos = 0;        // Zero out position in text that we're processing
-    
-    // Look through IMG HTML tags, using the regex to grab text before the tag and the tag itself.
-    // TODO: Refactor to use calls to replaceAll() instead of building string one element at a time.
-    while ((imgTagMsgTextArray = imgTagRegex.exec(text)) !== null) {
-        let imgTagHtml = imgTagMsgTextArray[0];                     // The <img> tag
-        let imgTagStartLoc = imgTagMsgTextArray.indices[0][0];
-        let imgTagEndLoc = imgTagMsgTextArray.indices[0][1];
-        
-        currText = text.substr(currPos, imgTagStartLoc-currPos);    // Text from last IMG tag to start of new IMG tag
-        workingText += currText;                                    // Add that text to working area
-        
-        let imgTagContentId = /src\s*="cid:(.*?)"/i.exec(imgTagHtml);   // The CONTENTID of the 'src="cid:CONTENTID"' in the IMG tag of an attached image
-        let imgTagUrl = /src\s*="(http(s)?\:\/\/.*?)"/i.exec(imgTagHtml);   // The URL of the 'src' field in the IMG tag of a remote image
-        let imgTagAltText = /alt\s*="(.*?)"/i.exec(imgTagHtml);         // The alt text in the IMG tag
-        
-        // Get the data from the image tag needed for markdown.
-        var imgMarkdownTitle = "";
-        var imgMarkdownLink = "";
-        if(imgTagContentId != null) {
-            // This is an embedded image. Get filename from the content id
-            filename = contentIdToFilenameMap[imgTagContentId[1]];
-            if(filename != undefined) {
-                imgMarkdownLink = filename;
-            } else {
-                // KNH TODO - flag when attachments are not supported
-                // No filename that matches content ID. Log an error
-                imgMarkdownLink = "FileNotFound";
-                console.error("Could not find embedded file for content-ID="+imgTagContentId);
-            }
-        }
-        if(imgTagUrl != null) {
-            // This is an external image. Embed the HTTP link
-            imgMarkdownLink = imgTagUrl[1];
-        }
-        
-        // Now, get any alt text from the IMG tag
-        if(imgTagAltText != null) {
-            imgMarkdownTitle = imgTagAltText[1];
-        } else {
-            // No alt txt - use link as a default
-            imgMarkdownTitle = imgMarkdownLink;
-        }
-        
-        // Add markdown image to the working area
-        var imgMarkdown = "![" + imgMarkdownTitle + "](" + imgMarkdownLink + ")";
-        workingText += imgMarkdown;
-        
-        // Move forward in HTML text for next IMG tag
-        currPos = imgTagEndLoc;
-        };
-
-    // Take any text following last IMG tag
-    workingText += text.substr(currPos, text.length-currPos);        
-        
-    // Overwrite text with the one containing the image markdown syntax.
-    text = workingText;
-    
-    // Handle list (ordered and unordered) HTML tags
-    var listTagRegex = /(<(\/)?(ol|ul|li).*?>)/gid;   // Regex to match LI, OL, or UL start and end tags. Allow for modifiers and properties inside tag.
-    var ListTagMsgTextArray;
-    workingText = "";   // Zero out working area
-    currPos = 0;        // Zero out position in text that we're processing
-    var listCounterStack = [];  // Keep a stack to track ordered (+1) and unordered (-1) lists.
-    
-    // Loop through all list HTML tags, using the regex to grab text before the tag and the tag itself.
-    // TODO: Refactor to use calls to replaceAll() instead of building string one element at a time.
-    while ((ListTagMsgTextArray = listTagRegex.exec(text)) !== null) {
-        tagStart = ListTagMsgTextArray.indices[0][0];
-        tagEnd = ListTagMsgTextArray.indices[0][1];
-        
-        // Get the text before the tag and the tag itself.
-        currText = text.substr(currPos, tagStart-currPos);
-        tag = text.substr(tagStart, tagEnd-tagStart);
-        
-        // Add text before the tag to our working text.
-        workingText += currText;
-        
-       // Now, handle list item tags. 
-       if(/<li.*?>/gid.test(tag)) {    // Check for <LI> tag.
-           // Are there existing ul/ol lists?
-           if(listCounterStack.length < 1) {
-               console.error("Malformed HTML - LI tags without OL/UL setup");
-               continue;
-           }
-           
-           // Replace multiple line breaks with single line breaks, as the list controls line spacing.
-           workingText = workingText.replace(/\n+/gi, "\n");
-           
-           // Pad the list element with indent
-           workingText += "\n" + "    ".repeat(listCounterStack.length - 1);
-           
-           // Check if this is an ordered (posative number on stack) or unordered list (-1 on stack) 
-           if(listCounterStack.at(-1) > 0) {
-               // Ordered list - add markdown syntax
-               workingText += listCounterStack.at(-1).toString() + ". ";
-               
-               // Increment ordered list counter on the stack. We cna reference it later if needed.
-               listCounterStack[listCounterStack.length-1]++;
-           } else {
-               // Unordered list - just add markdown syntax
-               workingText += "- ";
-           }
-       } else if(/<\/li.*?>/gid.test(tag)) {   // Check for </LI> tag.
-           // Nothing to do for </LI> tags - just discard them.
-       } else if(/<ol.*?>/gid.test(tag)) {     // Check for <OL> tag.
-           // Start of ordered list - discard tag and put a +1 on stack for tracking nesting lists
-           listCounterStack.push(1);
-       } else if(/<ul.*?>/gid.test(tag)) {     // Check for <UL> tag.
-           // Start of unordered list - discard tag and put a +1 on stack for tracking nesting lists
-           listCounterStack.push(-1);
-       } else if(/<\/(o|u)l.*?>/gid.test(tag)) {   // Check for </OL> or </UL> tag.
-           // End list - just discard the tag and pop the stack
-           listCounterStack.pop(1);
-       } else {
-            console.error("Shouldn't get here with list tag '" + tag + "'");
-       }
-        
-        // Move forward in HTML text for to seek the next list tag
-        currPos = tagEnd;
-    }
-
-    // Take any text following last list tag
-    workingText += text.substr(currPos, text.length-currPos);
-
-    // Overwrite text with the one containing markdown formatted lists.
-    text = workingText;
-    
-    // Handle tables
-    text = text.replaceAll(/<table.*?>(.*)<\/table.*?>/gims, replaceHtmlTable);
-    
-    // Escape asterisks and underscores, which we will use to replace <i> and <b> after
-    text = text.replace(/_/gi, "\\_");
-    text = text.replace(/\*/gi, "\\*");
-    
-    // Handle italics and bold. It's important to use different
-    // syntax for each (underscores vs. asterisks) to allow interleaving.
-    text = text.replace(/<i>/gi, "_");
-    text = text.replace(/<\/i>/gi, "_");
-    text = text.replace(/<b>/gi, "**");
-    text = text.replace(/<\/b>/gi, "**");
-    
-    // Strikethrough - handle obsolete <s> and up to date <strike> tags
-    text = text.replace(/<s>/gi, "~~");
-    text = text.replace(/<\/s>/gi, "~~");
-    text = text.replace(/<strike>/gi, "~~");
-    text = text.replace(/<\/strike>/gi, "~~");
-    
-    // Handle horizontal lines
-    text = text.replace(/<hr[^>]+>/gi, "\n\n---");
-    
-    text = text.replace(/<[^>]+>/gi, "");   // Remove any remaining tags we haven't processed.
-    
-    text = text.replace(/ ,/gi, ",");       // Trim spaces in front of commas. May not be needed, but it can't hurt.
-
-    // Make any HTML character substitutions
-    text = text.replace(/&Auml;/g, "Ä");
-    text = text.replace(/&Uuml;/g, "Ü");
-    text = text.replace(/&Ouml;/g, "Ö");
-    text = text.replace(/&auml;/g, "ä");
-    text = text.replace(/&uuml;/g, "ü");
-    text = text.replace(/&ouml;/g, "ö");
-    text = text.replace(/&szlig;/gi, "ß");
-    text = text.replace(/&lt;/gi, "<");
-    text = text.replace(/&gt;/gi, ">");
-    text = text.replace(/&amp;/gi, "&");
-    text = text.replace(/&quot;/gi, "\"");
-    text = text.replace(/&nbsp;/gi, " ");
-
-    console.log("Translated markdown:\n" + text);
-    console.groupEnd();
-
-    return text;
-}
-
 ///////////////////////////
 // Mail clipping functions
 ///////////////////////////
@@ -560,8 +307,6 @@ function correctObsidianFilename(noteFileName, useUnicodeChars=true, subSpacesWi
     return noteFileName;
 }
 
-
-
 // Function to extract text from a message object (specifically, a messagePart object),
 // then recurse through any part[] arrays beneath that for more text.
 function buildMessageBody(msgPart, maxEmailSize, contentIdToFilenameMap)
@@ -570,7 +315,22 @@ function buildMessageBody(msgPart, maxEmailSize, contentIdToFilenameMap)
         
     // See if there's HTML content
     if (typeof msgPart.body !== 'undefined' && msgPart.contentType == "text/html") {
-            htmlMessageBody = htmlMessageBody + htmlToMarkdown(msgPart.body, contentIdToFilenameMap);
+        
+            // Yes, there is. Convert it.
+            var markdown = turndownService.turndown(msgPart.body);
+            
+            // Now repalce content ID fields (indicated by "cid:") that reference downloaded images.            
+            const cid_re = /\(cid:(.*)\)/g;
+            var cid_array = [...markdown.matchAll(cid_re)];            
+            
+            // Loop through embedded images in the markdown            
+            for (let i = 0; i < cid_array.length; ++i) {
+                // Replace the embedded image content ID tag with teh downloaded filename
+                markdown = markdown.replaceAll("cid:" + cid_array[i][1], contentIdToFilenameMap[cid_array[i][1]]);
+            }
+            
+            // Add the converted markdown to the clipped note
+            htmlMessageBody = htmlMessageBody + markdown;
         }
     // If no HTML, see if there's plaintext
     else if (typeof msgPart.body !== 'undefined' && msgPart.contentType == "text/plain") {
