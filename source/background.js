@@ -18,11 +18,31 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-console.log("DEBUG - background.js is running!!!");
+console.log("Obsidian Clipper - background.js is running!!!");
 
-// Set up trundown HTML to Markdown converter
-var turndownService = new TurndownService();
+// Set up turndown HTML to Markdown converter
+var turndownService = new TurndownService({headingStyle:'atx'});
+turndownService.remove('head');  // Axe HTML header
+turndownService.remove('style');  // Axe STYLE header
+turndownService.remove('script');  // Axe scripts
+turndownService.keep(['u']);
+turndownService.addRule('strikethrough', {
+    filter: ['del', 's', 'strike'],
+    replacement: function (content) {
+      return '~~' + content + '~~'
+    }
+  });
 
+turndownService.addRule('taskListItems', {
+    filter: function (node) {
+      return node.type === 'checkbox' && node.parentNode.nodeName === 'LI'
+    },
+    replacement: function (content, node) {
+      return (node.checked ? '[x]' : '[ ]') + ' '
+    }
+});
+  
+  
 // Global constants
 const STATUSLINE_PERSIST_MS = 10000;    // Delete status line messages after indicated time
 
@@ -74,7 +94,6 @@ function onError(error, context="") {
     } else {
         console.error("background.js: " + error + " (" + context + ")");
     }
-        
 }
 
 // Function to post an alert to the user
@@ -312,6 +331,7 @@ function correctObsidianFilename(noteFileName, useUnicodeChars=true, subSpacesWi
 function buildMessageBody(msgPart, maxEmailSize, contentIdToFilenameMap)
 {
     console.log("background.js - buildMessageBody -  msgPart.contentType=" +  msgPart.contentType);
+    console.log("msgPart.body=" +  msgPart.body);
         
     // See if there's HTML content
     if (typeof msgPart.body !== 'undefined' && msgPart.contentType == "text/html") {
@@ -319,7 +339,7 @@ function buildMessageBody(msgPart, maxEmailSize, contentIdToFilenameMap)
             // Yes, there is. Convert it.
             var markdown = turndownService.turndown(msgPart.body);
             
-            // Now repalce content ID fields (indicated by "cid:") that reference downloaded images.            
+            // Now replace content ID fields (indicated by "cid:") that reference downloaded images.
             const cid_re = /\(cid:(.*)\)/g;
             var cid_array = [...markdown.matchAll(cid_re)];            
             
