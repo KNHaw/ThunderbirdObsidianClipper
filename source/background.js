@@ -17,6 +17,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////
+// This add-on uses the Turndown HTML to Markdown conversion library, v7.2.0
+// in the bundled file turndown.js.
+// Turndown is copyright (c) 2017 Dom Christie, released under the MIT License
+// Downloaded from https://unpkg.com/turndown/dist/turndown.js
+// See https://github.com/mixmark-io/turndown for more information.
+///////////////////////////////////////////////////////////////////////////////
 
 console.log("Obsidian Clipper - background.js is running!!!");
 
@@ -32,7 +39,6 @@ turndownService.addRule('strikethrough', {
       return '~~' + content + '~~'
     }
   });
-
 turndownService.addRule('taskListItems', {
     filter: function (node) {
       return node.type === 'checkbox' && node.parentNode.nodeName === 'LI'
@@ -44,7 +50,7 @@ turndownService.addRule('taskListItems', {
   
   
 // Global constants
-const STATUSLINE_PERSIST_MS = 10000;    // Delete status line messages after indicated time
+const STATUSLINE_PERSIST_MS = 10000;    // Delete status line messages after indicated time (10 sec)
 
 // Global, persistant variables.
 var latestMsgDispTab = 1;       // Latest tab recorded on an incoming onMessageDisplay event. Used for later reference.
