@@ -185,20 +185,6 @@ please reach out to our team so we can post a solution here for future users.
 If you clip an email and see a "Vault Not Found" error, the *Obsidian Vault Name* field is not set properly. If you are unsure of your 
 vault name or have not set up a vault on your local machine yet, go to the [Obsidian Help](https://help.obsidian.md) page for details.
 
-### Unable to Save Email Attachments
-The attachment clipping feature was added in ObsidianClipper version v4.1 in July of 2024. It is unclear what, if any
-problems that users might encounter using this feature. If you have a problem, please 
-[file an issue on GitHub](https://github.com/KNHaw/ThunderbirdObsidianClipper/issues) so the development team can assist you and 
-update this User Guide to refelct the solutions that were found.
-
-### HTML Mail and Blank Note Content
-There is currently a [limitation](https://github.com/KNHaw/ThunderbirdObsidianClipper/issues/13) that HTML mail 
-(those with pictures or links or text formatting like bold or italic) may not clip correctly. If your selected emails 
-are HMTL, this could be happening. To rule this problem out, create a simple one line test email with plain text ("Hello, world!"), 
-send it to yourself, and see if it clips correctly.
-
-The current plan is to support HTML email at some point in the second half of 2024. Please watch the issue link above for status.
-
 ### Note Content Corrupted or Missing
 If you do not see the expected content in a note that has been clipped, look at the *Note Content Template* field in the options menu
 and make sure that the *_MSGCONTENT* placeholder is present. If is isn't, the body of your email will not be clipped.
