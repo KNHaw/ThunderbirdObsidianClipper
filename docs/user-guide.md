@@ -53,7 +53,7 @@ If you are unsure of your vault name or have not set up a vault on your local ma
   in the location indicated in 'Settings->Files & Links->Default location for new notes'.
   By default, this is usually the most recent folder in use in the Obsidian app.
     - Note that the path within the vault is *relative* to the top level directory of the vault. Do
-    not begin the path with a slash but instead just the name of the next direcoty down.
+    not begin the path with a slash but instead just the name of the next directory down.
     So, if you want to store notes in a directory called "clippedEmail" inside "myStuff"
     inside the vault, you will enter "clippedEmail/myStuff" and not "/clippedEmail/myStuff".  
 - *Message Attachments (Optional Feature)* - To save email attachments with clipped emails, do the following:
@@ -68,7 +68,7 @@ If you are unsure of your vault name or have not set up a vault on your local ma
     If not properly set your clipped email will not point to the clipped attachments.
     - ObsidianClipper can't change the default location to save files like attachments, so 
     read the section "Attachment Permissions" carefully to set the path for saving files.
-    - As with *Note Folder Path*, do not ebgin this path with a leading s;ash ("/").
+    - As with *Note Folder Path*, do not begin this path with a leading slash ("/").
 - *Note Filename and Content Templates* - These two fields allow a user to specify how notes clipped from emails are named and how 
   data is saved in Obsidian by use of placeholders in the text. See the Options tab of the add-on for a brief rundown of the
   different placeholder fields or the [Placeholders](#Placeholders) section of this guide for the definitive list of
