@@ -34,13 +34,17 @@ If you only wish to clip a portion of an email's text, select the text before pr
 
 ![This is what a clipped email message looks like in Obsidian. The location for the note, the format of the file name, and the format of the note itself are all customized via the "Options" tab..](docs/ClippedNote.png)
 
+## Features and Limitations
+Because Obsidian runs on its own dialect of the Markdown language, many features supported by email clients are available.
+- Can clip HTML or text emails.
+  - Supports most font effects (**bold**, _italics_, <s>strikethrough</s>) but not different fonts or variable font sizes.
+- Clips attachments.
+
+If you can think of a future feature, please post them at GitHub as described below in the **Feedback** section.
 
 ## Getting More Help
 If ObsidianClipper is not properly working, please take a moment to reread the instructions and reinstall the add-on. If the problem is still happening, please check out the 
 [Troubleshooting section of the User Guide](./docs/user-guide.md#Troubleshooting).
-
-## Limitations & Future Features
-At this time, ObsidianClipper will only clip the text portion of an email and not HTML content (i.e. embedded images, bold or italics, etc). If you're a user who is interested in this or other features, please let me know via the *Feedback* instructions below. Otherwise I will assume there is no demand for them.
 
 ## Questions? Feedback?
 ObsidianClipper is still a work in progress. If you have any questions or want to give me feedback, please reach out to to the team
