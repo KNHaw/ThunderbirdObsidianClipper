@@ -52,6 +52,10 @@ If you are unsure of your vault name or have not set up a vault on your local ma
   vault to place clipped emails. If this parameter is left blank, new notes in Obsidian will appear
   in the location indicated in 'Settings->Files & Links->Default location for new notes'.
   By default, this is usually the most recent folder in use in the Obsidian app.
+      - Note that the path within the vault is *relative* to the top level directory of the vault. Do
+        not begin the path with a slash but instead just the name of the next direcoty down.
+        So, if you want to store notes in a directory called "clippedEmail" inside "myStuff"
+        inside the vault, you will enter "clippedEmail/myStuff" and not "/clippedEmail/myStuff".  
 - *Message Attachments (Optional Feature)* - To save email attachments with clipped emails, do the following:
     - Set the checkbox labeled "Enable saving of email attachments" and save the setting. Because the configuration steps
     below need to be run before attachments can be saved, ObsidianClipper requires this manual step and will not
